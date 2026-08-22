@@ -530,17 +530,15 @@
                       </div>
 
                       <div className="space-y-2">
-                        <h3 className="font-black text-sm text-amber-400 uppercase">LOCATION MAP</h3>
-                        <div className="w-full h-44 bg-zinc-950 rounded-2xl overflow-hidden border border-zinc-800 shadow-inner relative">
-                          <div className="absolute inset-0 flex items-center justify-center text-[10px] text-gray-500">Map Area</div>
-                         <iframe src="[https://www.google.com/maps/embed/v1/place?key=AIzaSyA_placeholder_for_free_iframe_map_embedding_do_not_worry&q=place_id:ChIJY5ZNgPOv5TkR28R5rx5hwkY](https://www.google.com/maps/embed/v1/place?key=AIzaSyA_placeholder_for_free_iframe_map_embedding_do_not_worry&q=place_id:ChIJY5ZNgPOv5TkR28R5rx5hwkY)" ...>
+                        <h3 className="font-bold text-sm text-amber-400 uppercase">SHOP LOCATION MAP</h3>
+                        <div className="w-full h-44 bg-zinc-950 rounded-2xl overflow-hidden border border-zinc-800 shadow-inner">
+                          <iframe src="https://www.google.com/maps/embed/v1/place?key=AIzaSyA_placeholder_for_free_iframe_map_embedding_do_not_worry&q=place_id:ChIJY5ZNgPOv5TkR28R5rx5hwkY" width="100%" height="100%" style={{border:0}} allowFullScreen="" loading="lazy"></iframe>
                         </div>
-                        <div className="text-center pt-2">
-                          <a href={settings.mapLink} target="_blank" className="inline-block bg-zinc-950 border border-zinc-800 px-4 py-2 rounded-xl text-amber-400 hover:bg-zinc-800 transition font-black text-[10px] tracking-wider uppercase">🔗 OPEN IN GOOGLE MAPS</a>
+                        <div className="text-center pt-1">
+                          <a href={settings.mapLink} target="_blank" className="text-amber-400 hover:underline font-bold text-[11px]">🔗 OPEN IN GOOGLE MAPS APP</a>
                         </div>
                       </div>
 
-                      {/* Admin Settings Sub-panel */}
                       {currentUser && (
                         <form onSubmit={handleSaveSettings} className="bg-zinc-950 p-5 rounded-3xl border border-amber-500/30 space-y-3 mt-4 shadow-[0_0_15px_rgba(245,158,11,0.1)] relative">
                           <span className="absolute -top-3 left-4 bg-amber-500 text-black px-2 py-0.5 rounded text-[9px] font-black uppercase">Admin Settings</span>
