@@ -8,6 +8,7 @@
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
     <style>
       /* Techy Circuit Background Pattern & Glows */
       .techy-bg {
@@ -21,36 +22,33 @@
       .glow-amber {
         box-shadow: 0 0 25px rgba(245, 158, 11, 0.2);
       }
-      @keyframes blink {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0; }
-      }
-      .animate-blink {
-        animation: blink 1s infinite;
-      }
       .no-scrollbar::-webkit-scrollbar { display: none; }
       .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      
+      /* Smooth Preloader Scan Animation */
       @keyframes scanner {
         0% { left: -33%; }
         100% { left: 100%; }
       }
+      .animate-scanner {
+        animation: scanner 1.5s infinite ease-in-out;
+      }
+      
+      /* Progress Bar Transitions */
+      .progress-bar-fill {
+        transition: width 0.3s ease-out;
+      }
     </style>
 </head>
-<body class="techy-bg text-gray-100 font-sans min-h-screen flex flex-col justify-between selection:bg-amber-500 selection:text-black">
+<body class="techy-bg text-gray-100 font-sans min-h-screen selection:bg-amber-500 selection:text-black">
     <div id="root"></div>
 
     <script type="text/babel">
       const { useState, useEffect } = React;
 
+      // ⚠️ IMPORTANT: REPLACE THIS URL WITH YOUR NEW WEB APP DEPLOYMENT URL IF YOU RE-DEPLOYED
       const API_URL = "https://script.google.com/macros/s/AKfycbyxc0GtwCU_Gx2scVdTM6I38vml0Oza__Zftg13jDg5D_DiQp1rf2y2e3jxocxuKx2ZUQ/exec";
 
-      // Default Fallback Data (prevents blank screen if fetch is slow or fails)
-      const fallbackProducts = [
-        { id: '1', name: 'Wireless Bluetooth Earbuds', category: 'Electronic', price: 'Rs. 1,200', image: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=400&q=80', description: 'High bass wireless earbuds with 24hr battery backup.' },
-        { id: '2', name: 'Fast 65W GaN Charger', category: 'Accessory', price: 'Rs. 1,800', image: 'https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=400&q=80', description: 'Ultra fast multi-port charger for mobiles & laptops.' },
-      ];
-
-      // Real Brand SVG Icons
       const SocialIcons = {
         Facebook: () => <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M22.675 0h-21.35c-.732 0-1.325.593-1.325 1.325v21.351c0 .731.593 1.324 1.325 1.324h11.495v-9.294h-3.128v-3.622h3.128v-2.671c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.325v-21.35c0-.732-.593-1.325-1.325-1.325z"/></svg>,
         Instagram: () => <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>,
@@ -62,202 +60,194 @@
       function App() {
         const [appLoading, setAppLoading] = useState(true);
         const [loadProgress, setLoadProgress] = useState(0);
-
+        
         const [page, setPage] = useState('home');
         const [currentUser, setCurrentUser] = useState(null);
+        
+        // Custom UI Modal States
         const [showLoginModal, setShowLoginModal] = useState(false);
+        const [showPasswordModal, setShowPasswordModal] = useState(false);
         const [loginCreds, setLoginCreds] = useState({ user: '', pass: '' });
+        const [passCreds, setPassCreds] = useState({ oldPass: '', newPass: '', confirmPass: '' });
+        
+        const [customAlert, setCustomAlert] = useState({ show: false, msg: '', type: 'info' });
+        const [customConfirm, setCustomConfirm] = useState({ show: false, msg: '', onConfirm: null });
 
-        const [products, setProducts] = useState(fallbackProducts);
+        // Database States
+        const [products, setProducts] = useState([]);
         const [downloads, setDownloads] = useState([]);
         const [team, setTeam] = useState([]);
         const [settings, setSettings] = useState({
           whatsapp: '+9779769726479',
+          phone: '+9779769726479',
           address: 'Jhapa Gaupalika - 5, Purano Sharanamati, Jhapa',
           email: 'hamrosolutionhub@gmail.com',
           mapLink: 'https://maps.app.goo.gl/rufnFrQQNA2mcvGJA',
-          logo: ''
+          logo: '', facebook: '', instagram: '', youtube: '', tiktok: ''
         });
-        const [users, setUsers] = useState([{id: 'admin', username: 'admin', password: 'password', name: 'Admin'}]);
+        const [users, setUsers] = useState([]);
 
+        // Filter States
         const [filter, setFilter] = useState('All');
         const [searchQuery, setSearchQuery] = useState('');
         const [downloadFilter, setDownloadFilter] = useState('All');
         const [downloadSearch, setDownloadSearch] = useState('');
-        
-        // Modals & Editing States
         const [selectedProduct, setSelectedProduct] = useState(null);
+
+        // Edit States
         const [editingProduct, setEditingProduct] = useState(null);
         const [editingDownload, setEditingDownload] = useState(null);
         const [editingTeam, setEditingTeam] = useState(null);
-        
-        // Custom UI Notifications (to avoid sandbox alert crashes)
-        const [toast, setToast] = useState('');
-        const [confirmDialog, setConfirmDialog] = useState(null);
 
         useEffect(() => {
-          // Animate Loading Screen Progress
           let progress = 0;
-          const progressInterval = setInterval(() => {
-            progress += 15;
-            if (progress >= 100) {
-              progress = 100;
-              clearInterval(progressInterval);
-              setTimeout(() => setAppLoading(false), 600); // Transition out smoothly
+          const interval = setInterval(() => {
+            progress += Math.floor(Math.random() * 15) + 5;
+            if (progress >= 90) {
+                progress = 90; // Hold at 90 until fetch completes
+                clearInterval(interval);
             }
             setLoadProgress(progress);
           }, 150);
 
-          // Fetch Live Data
-          fetchAllData();
-        }, []);
-
-        const showToast = (msg) => {
-            setToast(msg);
-            setTimeout(() => setToast(''), 3000);
-        };
-
-        const requireConfirm = (msg, actionCallback) => {
-            setConfirmDialog({ message: msg, onConfirm: actionCallback });
-        };
-
-        const fetchAllData = () => {
           fetch(API_URL + "?action=getData")
             .then(res => res.json())
             .then(data => {
-              if (data.products && data.products.length > 0) setProducts(data.products);
-              if (data.downloads && data.downloads.length > 0) setDownloads(data.downloads);
-              if (data.team && data.team.length > 0) setTeam(data.team);
-              if (data.settings && Object.keys(data.settings).length > 0) setSettings(data.settings);
-              if (data.users && data.users.length > 0) setUsers(data.users);
+              if (data.products) setProducts(data.products);
+              if (data.downloads) setDownloads(data.downloads);
+              if (data.team) setTeam(data.team);
+              if (data.settings) setSettings(data.settings);
+              if (data.users) setUsers(data.users);
+              
+              setLoadProgress(100);
+              setTimeout(() => setAppLoading(false), 500);
+              clearInterval(interval);
             })
-            .catch(() => console.log("Using fallback data safely."));
+            .catch(() => {
+              // Fail safe if Google Script is broken
+              setLoadProgress(100);
+              setTimeout(() => setAppLoading(false), 500);
+              clearInterval(interval);
+            });
+            
+          return () => clearInterval(interval);
+        }, []);
+
+        const showAlert = (msg, type = 'info') => setCustomAlert({ show: true, msg, type });
+        const showConfirm = (msg, onConfirm) => setCustomConfirm({ show: true, msg, onConfirm });
+
+        // Image to Base64 utility
+        const handleImageFileChange = (e, stateSetter, currentState) => {
+            const file = e.target.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onloadend = () => stateSetter({...currentState, imageFileBase64: reader.result, image: reader.result});
+                reader.readAsDataURL(file);
+            }
         };
 
         const handleLogin = (e) => {
           e.preventDefault();
-          const matched = users.find(u => (u.username === loginCreds.user || u.id === loginCreds.user) && u.password === loginCreds.pass);
+          const matched = users.find(u => (u.username === loginCreds.user || u.id === loginCreds.user) && String(u.password) === String(loginCreds.pass));
           if (matched) {
             setCurrentUser(matched);
             setShowLoginModal(false);
-            showToast("Welcome to Admin Dashboard!");
+            setLoginCreds({user:'', pass:''});
+            showAlert("Login Successful! Welcome Admin.", "success");
           } else {
-            showToast("Invalid User ID or Password!");
+            showAlert("Invalid User ID or Password!", "error");
           }
         };
 
-        const handleSaveProduct = async (e) => {
+        const handleChangePassword = async (e) => {
           e.preventDefault();
-          showToast("SAVING PRODUCT...");
+          if(passCreds.newPass !== passCreds.confirmPass) {
+              return showAlert("New Passwords do not match!", "error");
+          }
+          showAlert("Updating password...", "info");
           try {
-            await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'saveProduct', payload: editingProduct }) });
-            setEditingProduct(null);
-            fetchAllData();
-            showToast("Product saved!");
-          } catch(err) { showToast("Error saving product"); }
+            const response = await fetch(API_URL, { 
+                method: 'POST', 
+                body: JSON.stringify({ action: 'changePassword', payload: { username: currentUser.username, oldPass: passCreds.oldPass, newPass: passCreds.newPass } }) 
+            });
+            const result = await response.json();
+            if(result.success) {
+                showAlert("Password Changed Successfully!", "success");
+                setShowPasswordModal(false);
+                setPassCreds({oldPass:'', newPass:'', confirmPass:''});
+            } else {
+                showAlert(result.message, "error");
+            }
+          } catch(e) {
+            showAlert("Error updating password.", "error");
+          }
         };
 
-        const handleDeleteProduct = (id) => {
-          requireConfirm("Are you sure you want to delete this product?", async () => {
-            setConfirmDialog(null);
-            showToast("DELETING PRODUCT...");
+        const handleSaveAction = async (action, payload, stateSetter, successMsg) => {
+          showAlert(`Saving ${successMsg}...`, "info");
+          try {
+            await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action, payload }) });
+            stateSetter(null);
+            showAlert(`${successMsg} Saved Successfully!`, "success");
+            // Refresh data in background
+            fetch(API_URL + "?action=getData").then(res=>res.json()).then(data => {
+              if(action==='saveProduct') setProducts(data.products);
+              if(action==='saveDownload') setDownloads(data.downloads);
+              if(action==='saveTeam') setTeam(data.team);
+              if(action==='saveSettings') setSettings(data.settings);
+            });
+          } catch(e) {
+            showAlert(`Error saving ${successMsg}.`, "error");
+          }
+        };
+
+        const handleDeleteAction = (action, id, type) => {
+          showConfirm(`Are you sure you want to DELETE this ${type}?`, async () => {
+            showAlert(`Deleting ${type}...`, "info");
             try {
-              await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteProduct', payload: { id } }) });
-              fetchAllData();
-              showToast("Product deleted!");
-            } catch(err) { showToast("Error deleting product"); }
+              await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action, payload: { id } }) });
+              showAlert(`${type} Deleted.`, "success");
+              // Refresh
+              fetch(API_URL + "?action=getData").then(res=>res.json()).then(data => {
+                  if(action==='deleteProduct') setProducts(data.products);
+                  if(action==='deleteDownload') setDownloads(data.downloads);
+                  if(action==='deleteTeam') setTeam(data.team);
+              });
+            } catch(e) {
+              showAlert(`Error deleting ${type}.`, "error");
+            }
           });
-        };
-
-        const handleSaveDownload = async (e) => {
-          e.preventDefault();
-          showToast("SAVING DOWNLOAD...");
-          try {
-            await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'saveDownload', payload: editingDownload }) });
-            setEditingDownload(null);
-            fetchAllData();
-            showToast("Download saved!");
-          } catch(err) { showToast("Error saving download"); }
-        };
-
-        const handleDeleteDownload = (id) => {
-          requireConfirm("Delete this download?", async () => {
-            setConfirmDialog(null);
-            showToast("DELETING...");
-            try {
-              await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteDownload', payload: { id } }) });
-              fetchAllData();
-              showToast("Download deleted!");
-            } catch(err) { showToast("Error deleting"); }
-          });
-        };
-
-        const handleSaveTeam = async (e) => {
-          e.preventDefault();
-          showToast("SAVING TEAM MEMBER...");
-          try {
-            await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'saveTeam', payload: editingTeam }) });
-            setEditingTeam(null);
-            fetchAllData();
-            showToast("Team member saved!");
-          } catch(err) { showToast("Error saving member"); }
-        };
-
-        const handleDeleteTeam = (id) => {
-          requireConfirm("Remove team member?", async () => {
-            setConfirmDialog(null);
-            showToast("REMOVING...");
-            try {
-              await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteTeam', payload: { id } }) });
-              fetchAllData();
-              showToast("Member removed!");
-            } catch(err) { showToast("Error removing"); }
-          });
-        };
-
-        const handleSaveSettings = async (e) => {
-          e.preventDefault();
-          showToast("SAVING SETTINGS...");
-          try {
-            await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'saveSettings', payload: settings }) });
-            fetchAllData();
-            showToast("Settings updated!");
-          } catch(err) { showToast("Error saving settings"); }
         };
 
         const filteredProducts = products.filter(p => {
-          if (!p) return false;
-          const safeName = p.name || '';
+          if (!p || !p.name) return false;
           const matchesCat = filter === 'All' || p.category === filter;
-          const matchesSearch = safeName.toLowerCase().includes(searchQuery.toLowerCase());
+          const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
           return matchesCat && matchesSearch;
         });
 
         const filteredDownloads = downloads.filter(d => {
-          if (!d) return false;
-          const safeName = d.name || '';
+          if (!d || !d.name) return false;
           const matchesCat = downloadFilter === 'All' || d.category === downloadFilter;
-          const matchesSearch = safeName.toLowerCase().includes(downloadSearch.toLowerCase());
+          const matchesSearch = d.name.toLowerCase().includes(downloadSearch.toLowerCase());
           return matchesCat && matchesSearch;
         });
 
         if (appLoading) {
             return (
-                <div className="flex items-center justify-center min-h-screen bg-black/95 text-white p-4">
-                    <div className="text-center space-y-6 p-8 bg-zinc-950/95 border border-amber-500/40 rounded-3xl glow-amber max-w-sm w-full font-mono shadow-2xl relative overflow-hidden">
-                        <div className="w-16 h-16 bg-gradient-to-tr from-amber-600 to-amber-400 text-black rounded-2xl flex items-center justify-center mx-auto font-black text-2xl shadow-lg shadow-amber-500/30 animate-pulse">
-                            SH
-                        </div>
+                <div className="flex items-center justify-center min-h-screen bg-black text-white p-4">
+                    <div className="text-center space-y-6 p-8 bg-zinc-950 border border-amber-500/40 rounded-3xl glow-amber max-w-sm w-full font-mono shadow-2xl relative overflow-hidden">
+                        <div className="w-16 h-16 bg-gradient-to-tr from-amber-600 to-amber-400 text-black rounded-2xl flex items-center justify-center mx-auto font-black text-2xl shadow-lg shadow-amber-500/30 animate-pulse">SH</div>
                         <div className="space-y-2">
                             <h2 className="text-sm font-black tracking-widest text-white uppercase">SOLUTION HUB</h2>
                             <p className="text-[11px] text-amber-400 font-semibold tracking-wider">SYSTEM INITIALIZING...</p>
                         </div>
                         <div className="space-y-2">
                             <div className="w-full h-1.5 bg-zinc-900 rounded-full overflow-hidden relative border border-amber-500/30">
-                                <div className="absolute top-0 bottom-0 left-0 bg-amber-500 transition-all duration-300 ease-out" style={{ width: `${loadProgress}%` }}></div>
+                                <div className="absolute top-0 bottom-0 left-0 bg-gradient-to-r from-amber-600 via-amber-400 to-yellow-300 progress-bar-fill shadow-[0_0_10px_rgba(245,158,11,0.8)]" style={{ width: `${loadProgress}%` }}></div>
                             </div>
                             <div className="flex justify-between text-[10px] text-gray-400 font-mono">
-                                <span>LOADING...</span>
+                                <span>LOADING SECURE DATA...</span>
                                 <span className="text-amber-400 font-bold">{loadProgress}%</span>
                             </div>
                         </div>
@@ -267,75 +257,80 @@
         }
 
         return (
-          <div className="min-h-screen flex flex-col justify-between text-gray-100">
+          <div className="flex flex-col flex-grow w-full">
             
-            {/* Custom UI Notifications (Replaces alert) */}
-            {toast && (
-                <div className="fixed top-24 right-4 z-[100] bg-amber-500 text-black px-6 py-3 rounded-xl font-bold shadow-2xl border border-amber-300 animate-[pulse_0.5s_ease-out]">
-                    ⚡ {toast}
+            {/* Custom Modals */}
+            {customAlert.show && (
+                <div className="fixed inset-0 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 z-[100]">
+                    <div className={`bg-zinc-900 border ${customAlert.type === 'error' ? 'border-rose-500/50' : 'border-amber-500/30'} rounded-2xl max-w-xs w-full p-6 text-center shadow-2xl space-y-6`}>
+                        <div className={`text-3xl ${customAlert.type === 'error' ? 'text-rose-500' : 'text-amber-400'}`}>
+                            {customAlert.type === 'error' ? '⚠️' : customAlert.type === 'success' ? '✅' : 'ℹ️'}
+                        </div>
+                        <p className="text-white text-sm font-bold leading-relaxed">{customAlert.msg}</p>
+                        <button onClick={() => setCustomAlert({show: false, msg: '', type: 'info'})} className="bg-zinc-800 text-white px-6 py-2 rounded-xl font-black uppercase text-xs shadow-lg hover:bg-zinc-700 transition w-full">OK</button>
+                    </div>
                 </div>
             )}
-
-            {/* Custom Delete Confirm Modal (Replaces confirm) */}
-            {confirmDialog && (
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-[100]">
-                    <div className="bg-zinc-950 border border-amber-500/40 p-6 rounded-3xl max-w-sm w-full text-center space-y-6 shadow-2xl">
-                        <div className="text-amber-500 text-4xl">⚠️</div>
-                        <h3 className="font-bold text-white uppercase">{confirmDialog.message}</h3>
-                        <div className="flex gap-4">
-                            <button onClick={() => setConfirmDialog(null)} className="flex-1 bg-zinc-800 text-white py-3 rounded-xl font-bold hover:bg-zinc-700">CANCEL</button>
-                            <button onClick={confirmDialog.onConfirm} className="flex-1 bg-amber-500 text-black py-3 rounded-xl font-black hover:bg-amber-400">CONFIRM</button>
+            
+            {customConfirm.show && (
+                <div className="fixed inset-0 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 z-[100]">
+                    <div className="bg-zinc-900 border border-rose-500/30 rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl space-y-6">
+                        <div className="text-3xl text-rose-500 mb-2">🛑</div>
+                        <p className="text-white text-sm font-bold leading-relaxed">{customConfirm.msg}</p>
+                        <div className="flex justify-center gap-3">
+                            <button onClick={() => setCustomConfirm({show: false, msg: '', onConfirm: null})} className="flex-1 bg-zinc-800 text-gray-300 hover:text-white px-5 py-2.5 rounded-xl font-bold uppercase text-xs transition">Cancel</button>
+                            <button onClick={() => { customConfirm.onConfirm(); setCustomConfirm({show: false, msg: '', onConfirm: null}); }} className="flex-1 bg-rose-600 text-white px-5 py-2.5 rounded-xl font-black uppercase text-xs shadow-lg hover:bg-rose-500 transition">Confirm</button>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* Header */}
-            <header className="bg-black/90 backdrop-blur-md shadow-2xl sticky top-0 z-50 border-b border-amber-500/20">
+            {/* Header & Navigation */}
+            <header className="bg-black/90 backdrop-blur-md shadow-2xl sticky top-0 z-40 border-b border-amber-500/20">
               <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
                 <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setPage('home')}>
                   {settings.logo ? (
-                    <img src={settings.logo} alt="Logo" className="w-11 h-11 rounded-2xl object-cover border border-amber-500/50 shadow-md" />
+                    <img src={settings.logo} alt="Logo" className="w-11 h-11 rounded-2xl object-cover border border-amber-500/50 shadow-md bg-zinc-900" />
                   ) : (
                     <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-600 via-amber-500 to-yellow-300 text-black flex items-center justify-center font-black text-lg shadow-lg shadow-amber-500/20">SH</div>
                   )}
                   <div>
                     <h1 className="font-black text-base sm:text-lg leading-tight tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-100 to-amber-400 uppercase">SOLUTION HUB</h1>
-                    <p className="text-[9px] sm:text-[10px] text-amber-400 tracking-widest font-bold uppercase">INNOVATIVE SOLUTIONS | UNMATCHED SERVICES</p>
+                    <p className="text-[9px] sm:text-[10px] text-amber-400 tracking-widest font-bold uppercase hidden sm:block">INNOVATIVE SOLUTIONS | UNMATCHED SERVICES</p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3">
-                  {currentUser && <span className="text-xs text-amber-400 font-bold hidden sm:inline">👤 {currentUser.name || currentUser.username}</span>}
-                  
-                  {/* Clean Admin Login Icon Button */}
+                  {currentUser && (
+                      <div className="flex items-center gap-2">
+                          <span className="text-xs text-amber-400 font-bold hidden sm:inline mr-2">👤 {currentUser.name || currentUser.username}</span>
+                          <button onClick={() => setShowPasswordModal(true)} title="CHANGE PASSWORD" className="w-9 h-9 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-amber-400 flex items-center justify-center shadow transition group">
+                              <svg className="w-4 h-4 group-hover:scale-110 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" /></svg>
+                          </button>
+                      </div>
+                  )}
                   <button 
                     onClick={() => currentUser ? setCurrentUser(null) : setShowLoginModal(true)} 
                     title={currentUser ? "LOGOUT" : "ADMIN LOGIN"}
-                    className="w-10 h-10 rounded-2xl bg-zinc-900 hover:bg-zinc-800 border border-amber-500/30 text-amber-400 flex items-center justify-center shadow-lg transition transform active:scale-95 group"
+                    className="w-10 h-10 rounded-xl bg-gradient-to-tr from-zinc-900 to-zinc-800 hover:from-zinc-800 hover:to-zinc-700 border border-amber-500/30 text-amber-400 flex items-center justify-center shadow-lg transition transform active:scale-95 group"
                   >
-                    <svg className="w-5 h-5 group-hover:scale-110 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
+                    <svg className="w-5 h-5 group-hover:scale-110 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                   </button>
                 </div>
               </div>
 
-              {/* Navigation */}
               <nav className="bg-zinc-950/95 border-t border-zinc-900/80 px-2 sm:px-4 py-2">
                 <div className="max-w-7xl mx-auto flex items-center justify-start sm:justify-center gap-1.5 sm:gap-4 text-xs font-bold overflow-x-auto py-1 no-scrollbar">
                   <button onClick={() => setPage('home')} className={`px-4 py-2 rounded-xl transition whitespace-nowrap uppercase tracking-wider shrink-0 ${page === 'home' ? 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black shadow-lg font-black' : 'text-gray-300 hover:text-amber-400 hover:bg-white/5'}`}>🏠 HOME</button>
                   <button onClick={() => setPage('shopping')} className={`px-4 py-2 rounded-xl transition whitespace-nowrap uppercase tracking-wider shrink-0 ${page === 'shopping' ? 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black shadow-lg font-black' : 'text-gray-300 hover:text-amber-400 hover:bg-white/5'}`}>🛍️ SHOPPING</button>
                   <button onClick={() => setPage('about')} className={`px-4 py-2 rounded-xl transition whitespace-nowrap uppercase tracking-wider shrink-0 ${page === 'about' ? 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black shadow-lg font-black' : 'text-gray-300 hover:text-amber-400 hover:bg-white/5'}`}>ℹ️ ABOUT US</button>
-                  <button onClick={() => setPage('contact')} className={`px-4 py-2 rounded-xl transition whitespace-nowrap shrink-0 uppercase tracking-wider ${page === 'contact' ? 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black shadow-lg font-black' : 'text-gray-300 hover:text-amber-400 hover:bg-white/5'}`}>📞 CONTACT US</button>
-                  <button onClick={() => setPage('download')} className={`px-4 py-2 rounded-xl transition whitespace-nowrap shrink-0 uppercase tracking-wider ${page === 'download' ? 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black shadow-lg font-black' : 'text-gray-300 hover:text-amber-400 hover:bg-white/5'}`}>📥 DOWNLOAD</button>
+                  <button onClick={() => setPage('contact')} className={`px-4 py-2 rounded-xl transition whitespace-nowrap shrink-0 uppercase tracking-wider ${page === 'contact' ? 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black shadow-lg font-black' : 'text-gray-300 hover:text-amber-400 hover:bg-white/5'}`}>📞 CONTACT & SETTINGS</button>
+                  <button onClick={() => setPage('download')} className={`px-4 py-2 rounded-xl transition whitespace-nowrap shrink-0 uppercase tracking-wider ${page === 'download' ? 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black shadow-lg font-black' : 'text-gray-300 hover:text-amber-400 hover:bg-white/5'}`}>📥 DOWNLOADS</button>
                 </div>
               </nav>
             </header>
 
-            {}
-            <main className="flex-grow relative z-10">
-              {/* HOME PAGE */}
+            <main className="flex-grow">
               {page === 'home' && (
                 <div className="space-y-16 pb-16">
                   <section className="relative overflow-hidden bg-gradient-to-b from-slate-900/90 via-zinc-950/90 to-black/90 text-white py-24 px-4 text-center space-y-6 border-b border-amber-500/10 glow-amber">
@@ -343,12 +338,11 @@
                     <h2 className="text-3xl sm:text-5xl md:text-6xl font-black max-w-3xl mx-auto leading-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-100 to-amber-300 uppercase">INNOVATIVE SOLUTIONS & UNMATCHED SERVICES</h2>
                     <p className="text-sm sm:text-base text-gray-400 max-w-xl mx-auto leading-relaxed">Your ultimate one-stop shop for professional mobile repairing, electronic gadgets, studio-quality photography, and complete tech support.</p>
                     <div className="flex justify-center gap-4 pt-4">
-                      <button onClick={() => setPage('shopping')} className="bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black px-7 py-3.5 rounded-xl font-black text-xs shadow-xl transition transform active:scale-95 uppercase">🛍️ SHOP PRODUCTS</button>
-                      <button onClick={() => setPage('contact')} className="border border-amber-500/30 bg-white/5 hover:bg-white/10 text-white px-7 py-3.5 rounded-xl font-black text-xs transition uppercase">📞 GET IN TOUCH</button>
+                      <button onClick={() => setPage('shopping')} className="bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black px-7 py-3.5 rounded-xl font-black text-xs shadow-xl transition transform active:scale-95 uppercase tracking-widest">🛍️ SHOP PRODUCTS</button>
+                      <button onClick={() => setPage('contact')} className="border border-amber-500/30 bg-white/5 hover:bg-white/10 text-white px-7 py-3.5 rounded-xl font-black text-xs transition uppercase tracking-widest">📞 GET IN TOUCH</button>
                     </div>
                   </section>
 
-                  {/* Services on Home Page */}
                   <section className="max-w-7xl mx-auto px-4">
                     <div className="text-center space-y-2 mb-10">
                       <h3 className="text-2xl sm:text-3xl font-black text-white uppercase">OUR PROFESSIONAL SERVICES</h3>
@@ -378,13 +372,12 @@
                     </div>
                   </section>
 
-                  {/* Home Page About Us & Contact Highlights */}
                   <section className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-zinc-900">
                     <div className="bg-zinc-900/80 p-8 rounded-3xl border border-zinc-800 space-y-4 flex flex-col justify-between">
                       <div className="space-y-3">
                         <span className="text-xs text-amber-400 font-bold uppercase tracking-wider">ℹ️ ABOUT SOLUTION HUB</span>
                         <h3 className="text-xl font-black text-white uppercase">RELIABLE TECH & STUDIO EXPERTS</h3>
-                        <p className="text-xs text-gray-300 leading-relaxed">Located at {settings.address || 'our store'}, we bring state-of-the-art technological solutions and studio photography under one roof with uncompromised quality.</p>
+                        <p className="text-xs text-gray-300 leading-relaxed">Located at {settings.address}, we bring state-of-the-art technological solutions and studio photography under one roof with uncompromised quality.</p>
                       </div>
                       <button onClick={() => setPage('about')} className="self-start text-xs font-black text-amber-400 hover:underline uppercase tracking-wider">READ MORE ABOUT US →</button>
                     </div>
@@ -393,7 +386,7 @@
                       <div className="space-y-3">
                         <span className="text-xs text-amber-400 font-bold uppercase tracking-wider">📞 CONTACT & LOCATION</span>
                         <h3 className="text-xl font-black text-white uppercase">VISIT OUR STORE OR CHAT WITH US</h3>
-                        <p className="text-xs text-gray-300 leading-relaxed">Have questions about mobile repairs or electronic items? Reach out via WhatsApp instantly at {settings.whatsapp || 'our support number'}.</p>
+                        <p className="text-xs text-gray-300 leading-relaxed">Have questions about mobile repairs or electronic items? Reach out via WhatsApp instantly at {settings.whatsapp}.</p>
                       </div>
                       <button onClick={() => setPage('contact')} className="self-start text-xs font-black text-amber-400 hover:underline uppercase tracking-wider">OPEN CONTACT & MAP →</button>
                     </div>
@@ -401,42 +394,35 @@
                 </div>
               )}
 
-              {/* SHOPPING PAGE */}
               {page === 'shopping' && (
                 <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
                   <div className="text-center space-y-2">
-                    <h2 className="text-2xl sm:text-3xl font-black text-white uppercase">SHOPPING STORE</h2>
+                    <h2 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-wider">SHOPPING STORE</h2>
                     <p className="text-xs sm:text-sm text-gray-400">Explore our quality electronic items, earbuds, chargers, and mobile accessories</p>
                   </div>
 
                   {currentUser && (
                     <div className="flex justify-end">
-                      <button onClick={() => setEditingProduct({ id: '', name: '', category: 'Electronic', price: '', image: '', description: '', gallery: '[]' })} className="bg-amber-500 hover:bg-amber-400 text-black px-4 py-2 rounded-xl text-xs font-black shadow uppercase transition">
+                      <button onClick={() => setEditingProduct({ id: '', name: '', category: 'Electronic', price: '', image: '', description: '', gallery: '[]' })} className="bg-amber-500 hover:bg-amber-400 text-black px-5 py-2.5 rounded-xl text-xs font-black shadow-lg uppercase transition">
                         ➕ ADD NEW PRODUCT
                       </button>
                     </div>
                   )}
 
-                  {/* Search and Category Filter */}
                   <div className="flex flex-col sm:flex-row gap-3 justify-between items-center bg-zinc-900/90 p-4 rounded-2xl border border-zinc-800 shadow-xl">
-                    <input 
-                      type="text" 
-                      placeholder="Search products..." 
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full sm:w-80 p-2.5 bg-zinc-950 border border-zinc-700 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500 transition"
-                    />
+                    <input type="text" placeholder="Search products..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full sm:w-80 p-2.5 bg-zinc-950 border border-zinc-700 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500" />
                     <div className="flex gap-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 no-scrollbar">
-                      {['All', ...new Set(products.map(p => p?.category).filter(Boolean))].map(cat => (
-                        <button key={cat} onClick={()=>setFilter(cat)} className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition ${filter===cat?'bg-gradient-to-r from-amber-500 to-yellow-400 text-black shadow-lg font-black':'bg-zinc-950 text-gray-300 border border-zinc-800 hover:border-amber-500/50'}`}>
-                          {cat}
-                        </button>
+                      {['All', ...new Set(products.map(p => p.category).filter(Boolean))].map(cat => (
+                        <button key={cat} onClick={()=>setFilter(cat)} className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition ${filter===cat?'bg-gradient-to-r from-amber-500 to-yellow-400 text-black shadow-lg font-black':'bg-zinc-950 text-gray-300 border border-zinc-800 hover:border-amber-500/50'}`}>{cat}</button>
                       ))}
                     </div>
                   </div>
 
                   {filteredProducts.length === 0 ? (
-                    <div className="text-center py-20 text-gray-500 text-xs uppercase font-bold tracking-widest border border-dashed border-zinc-800 rounded-3xl bg-zinc-900/50">NO PRODUCTS FOUND.</div>
+                    <div className="text-center py-24 bg-zinc-900/50 rounded-3xl border border-zinc-800/50">
+                        <div className="text-4xl mb-3 opacity-50">🛍️</div>
+                        <div className="text-gray-500 text-xs uppercase font-bold tracking-widest">NO PRODUCTS FOUND.</div>
+                    </div>
                   ) : (
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
                       {filteredProducts.map(prod => {
@@ -445,27 +431,28 @@
                         const waLink = `https://wa.me/${cleanNum}?text=${waText}`;
 
                         return (
-                          <div key={prod.id} className="bg-gradient-to-b from-zinc-900 to-zinc-950 rounded-2xl shadow-xl border border-zinc-800 overflow-hidden flex flex-col justify-between group hover:border-amber-500/40 transition">
+                          <div key={prod.id} className="bg-gradient-to-b from-zinc-900 to-zinc-950 rounded-2xl shadow-xl border border-zinc-800 overflow-hidden flex flex-col justify-between group hover:border-amber-500/50 transition">
                             <div className="cursor-pointer" onClick={() => setSelectedProduct(prod)}>
-                              <div className="overflow-hidden bg-zinc-950 aspect-square sm:aspect-auto sm:h-44 relative flex items-center justify-center">
-                                <img src={prod.image || 'https://placehold.co/400x400/18181b/f59e0b?text=No+Image'} alt={prod.name} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" onError={(e) => { e.target.src='https://placehold.co/400x400/18181b/f59e0b?text=Error'; }} />
+                              <div className="overflow-hidden bg-zinc-950 h-36 sm:h-44 relative">
+                                <img src={prod.image || 'https://placehold.co/400x300/18181b/f59e0b?text=No+Image'} alt={prod.name} className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+                                <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition"></div>
                               </div>
                               <div className="p-3 sm:p-4 space-y-1.5">
-                                <span className="text-[9px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-full font-bold uppercase">{prod.category || 'Category'}</span>
-                                <h3 className="font-bold text-xs sm:text-sm text-white line-clamp-1">{prod.name || 'Unnamed Product'}</h3>
+                                <span className="text-[9px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-full font-bold tracking-wider">{prod.category}</span>
+                                <h3 className="font-bold text-xs sm:text-sm text-white line-clamp-1">{prod.name}</h3>
                                 <p className="text-[11px] text-gray-400 line-clamp-1">{prod.description}</p>
-                                <p className="text-xs sm:text-sm font-black text-amber-400">{prod.price}</p>
+                                <p className="text-xs sm:text-sm font-black text-amber-400 pt-1">{prod.price}</p>
                               </div>
                             </div>
                             <div className="p-3 sm:p-4 pt-0 space-y-2">
                               <div className="flex gap-2">
-                                <button onClick={() => setSelectedProduct(prod)} className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white text-center py-2 rounded-xl text-[11px] font-bold transition">Details</button>
-                                <a href={waLink} target="_blank" className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-xl text-[11px] font-black shadow-md text-center flex items-center justify-center transition">Shop Now</a>
+                                <button onClick={() => setSelectedProduct(prod)} className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white text-center py-2 rounded-xl text-[10px] font-bold uppercase transition">Details</button>
+                                <a href={waLink} target="_blank" className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-xl text-[10px] font-black shadow-md text-center uppercase flex items-center justify-center transition">Buy</a>
                               </div>
                               {currentUser && (
                                 <div className="flex gap-1 pt-2 border-t border-zinc-800">
-                                  <button onClick={() => setEditingProduct(prod)} className="flex-1 bg-amber-600 hover:bg-amber-500 text-black py-1.5 rounded-lg text-[10px] font-bold transition">Edit</button>
-                                  <button onClick={() => handleDeleteProduct(prod.id)} className="flex-1 bg-rose-600 hover:bg-rose-500 text-white py-1.5 rounded-lg text-[10px] font-bold transition">Delete</button>
+                                  <button onClick={() => setEditingProduct(prod)} className="flex-1 bg-zinc-800 text-amber-400 py-1.5 rounded-lg text-[10px] font-bold border border-zinc-700 hover:bg-zinc-700 transition">Edit</button>
+                                  <button onClick={() => handleDeleteAction('deleteProduct', prod.id, 'Product')} className="flex-1 bg-rose-900/50 text-rose-400 py-1.5 rounded-lg text-[10px] font-bold border border-rose-900 hover:bg-rose-800 transition">Delete</button>
                                 </div>
                               )}
                             </div>
@@ -477,189 +464,195 @@
                 </div>
               )}
 
-              {/* ABOUT US PAGE */}
               {page === 'about' && (
                 <div className="max-w-4xl mx-auto px-4 py-12 space-y-10">
                   <div className="text-center space-y-3">
-                    <h2 className="text-2xl sm:text-3xl font-black text-white uppercase">ABOUT US</h2>
+                    <h2 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-wider">ABOUT US</h2>
                     <p className="text-xs sm:text-sm text-amber-400 font-extrabold tracking-wider uppercase">INNOVATIVE SOLUTIONS | UNMATCHED SERVICES</p>
                     <p className="text-sm text-gray-300 leading-relaxed max-w-2xl mx-auto">Solution Hub is located at {settings.address}. We are a multi-service technical powerhouse dedicated to bringing high-quality tech repair, premium photo studio experiences, electronics retailing, and prompt customer support under one roof.</p>
                   </div>
 
-                  <div className="space-y-6 pt-4">
+                  <div className="space-y-6 pt-4 border-t border-zinc-900">
                     <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-black text-white uppercase">MANAGEMENT & LEADERSHIP TEAM</h3>
+                      <h3 className="text-lg font-black text-white uppercase">MANAGEMENT & TEAM</h3>
                       {currentUser && (
                         <button onClick={() => setEditingTeam({ id: '', name: '', role: '', image: '', desc: '' })} className="bg-amber-500 hover:bg-amber-400 transition text-black px-4 py-2 rounded-xl text-xs font-black shadow uppercase">➕ ADD MEMBER</button>
                       )}
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
-                      {team.map(member => (
-                        <div key={member.id} className="bg-zinc-900 p-6 rounded-3xl shadow-xl border border-zinc-800 text-center space-y-3 relative hover:border-amber-500/40 transition">
-                          <div className="w-24 h-24 bg-zinc-800 rounded-full mx-auto overflow-hidden border-2 border-amber-500 shadow-md">
-                            <img src={member.image || 'https://placehold.co/200x200/18181b/f59e0b'} alt={member.name} className="w-full h-full object-cover" />
-                          </div>
-                          <h4 className="font-bold text-sm text-white">{member.name}</h4>
-                          <p className="text-xs text-amber-400 font-bold uppercase tracking-wider">{member.role}</p>
-                          <p className="text-[11px] text-gray-400 leading-relaxed">{member.desc}</p>
-                          {currentUser && (
-                            <div className="flex gap-2 pt-3 border-t border-zinc-800">
-                              <button onClick={() => setEditingTeam(member)} className="flex-1 bg-amber-600 hover:bg-amber-500 text-black py-1.5 rounded-lg text-[10px] font-bold transition">Edit</button>
-                              <button onClick={() => handleDeleteTeam(member.id)} className="flex-1 bg-rose-600 hover:bg-rose-500 text-white py-1.5 rounded-lg text-[10px] font-bold transition">Delete</button>
+                    
+                    {team.length === 0 ? (
+                        <div className="text-center text-gray-600 text-xs py-10 uppercase font-bold">No team members added yet.</div>
+                    ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
+                          {team.map(member => (
+                            <div key={member.id} className="bg-zinc-900/80 p-6 rounded-3xl shadow-xl border border-zinc-800 text-center space-y-3 relative group hover:border-amber-500/40 transition">
+                              <div className="w-24 h-24 bg-zinc-800 rounded-full mx-auto overflow-hidden border-2 border-amber-500 shadow-xl group-hover:scale-105 transition">
+                                <img src={member.image || 'https://placehold.co/200x200/18181b/f59e0b?text=User'} alt={member.name} className="w-full h-full object-cover" />
+                              </div>
+                              <h4 className="font-bold text-base text-white tracking-wide">{member.name}</h4>
+                              <p className="text-xs text-amber-400 font-black uppercase tracking-wider">{member.role}</p>
+                              <p className="text-[11px] text-gray-400 leading-relaxed px-4">{member.desc}</p>
+                              {currentUser && (
+                                <div className="flex gap-2 pt-4 mt-4 border-t border-zinc-800">
+                                  <button onClick={() => setEditingTeam(member)} className="flex-1 bg-zinc-800 text-amber-400 py-1.5 rounded-lg text-[10px] font-bold border border-zinc-700 hover:bg-zinc-700 transition">Edit</button>
+                                  <button onClick={() => handleDeleteAction('deleteTeam', member.id, 'Team Member')} className="flex-1 bg-rose-900/50 text-rose-400 py-1.5 rounded-lg text-[10px] font-bold border border-rose-900 hover:bg-rose-800 transition">Remove</button>
+                                </div>
+                              )}
                             </div>
-                          )}
+                          ))}
                         </div>
-                      ))}
-                    </div>
+                    )}
                   </div>
                 </div>
               )}
 
-              {/* CONTACT US PAGE */}
               {page === 'contact' && (
                 <div className="max-w-5xl mx-auto px-4 py-12 space-y-8">
-                  <h2 className="text-2xl sm:text-3xl font-black text-center text-white uppercase">GET IN TOUCH</h2>
+                  <h2 className="text-2xl sm:text-3xl font-black text-center text-white uppercase tracking-wider">GET IN TOUCH</h2>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="bg-zinc-900 p-6 sm:p-8 rounded-3xl shadow-xl border border-zinc-800 space-y-6 text-xs text-gray-300">
-                      <div className="space-y-3">
-                        <h3 className="font-bold text-sm text-amber-400 flex items-center justify-between uppercase">
+                    <div className="bg-zinc-900/90 p-6 sm:p-8 rounded-3xl shadow-xl border border-zinc-800 space-y-6 text-xs text-gray-300 relative overflow-hidden">
+                      <div className="space-y-4 relative z-10">
+                        <h3 className="font-black text-base text-amber-400 flex items-center justify-between uppercase tracking-wider">
                           <span>📍 STORE INFORMATION</span>
-                          {currentUser && <span className="text-[10px] text-amber-300 underline font-mono">EDIT MODE ACTIVE</span>}
                         </h3>
-                        <p className="leading-relaxed"><strong>Address:</strong> {settings.address}</p>
-                        <p className="leading-relaxed"><strong>Mobile / WhatsApp:</strong> {settings.whatsapp}</p>
-                        <p className="leading-relaxed"><strong>Email:</strong> {settings.email}</p>
-                      </div>
-
-                      {/* Real Social Media Icons */}
-                      <div className="space-y-3">
-                        <h3 className="font-bold text-sm text-amber-400 uppercase">SOCIAL MEDIA CHANNELS</h3>
-                        <div className="flex flex-wrap gap-3">
-                          <a href={settings.facebook || "https://facebook.com"} target="_blank" className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-lg hover:scale-110 transition" title="Facebook"><SocialIcons.Facebook /></a>
-                          <a href={settings.instagram || "https://instagram.com"} target="_blank" className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 text-white flex items-center justify-center shadow-lg hover:scale-110 transition" title="Instagram"><SocialIcons.Instagram /></a>
-                          <a href={settings.whatsapp ? `https://wa.me/${settings.whatsapp.replace(/\D/g, '')}` : "https://whatsapp.com"} target="_blank" className="w-12 h-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shadow-lg hover:scale-110 transition" title="WhatsApp"><SocialIcons.WhatsApp /></a>
-                          <a href={settings.youtube || "https://youtube.com"} target="_blank" className="w-12 h-12 rounded-2xl bg-rose-600 text-white flex items-center justify-center shadow-lg hover:scale-110 transition" title="YouTube"><SocialIcons.YouTube /></a>
-                          <a href={settings.tiktok || "https://tiktok.com"} target="_blank" className="w-12 h-12 rounded-2xl bg-black border border-zinc-700 text-white flex items-center justify-center shadow-lg hover:scale-110 transition" title="TikTok"><SocialIcons.TikTok /></a>
+                        <div className="space-y-3 bg-zinc-950 p-4 rounded-2xl border border-zinc-800/50">
+                            <p className="leading-relaxed flex items-start gap-3"><span className="text-base">🏢</span> <span><strong>Address:</strong><br/>{settings.address}</span></p>
+                            <p className="leading-relaxed flex items-center gap-3"><span className="text-base">📞</span> <span><strong>Phone:</strong> {settings.phone}</span></p>
+                            <p className="leading-relaxed flex items-center gap-3"><span className="text-base">💬</span> <span><strong>WhatsApp:</strong> {settings.whatsapp}</span></p>
+                            <p className="leading-relaxed flex items-center gap-3"><span className="text-base">✉️</span> <span><strong>Email:</strong> {settings.email}</span></p>
                         </div>
                       </div>
 
-                      <div className="space-y-3">
-                        <h3 className="font-bold text-sm text-amber-400 uppercase">SHOP LOCATION MAP</h3>
-                        <div className="w-full h-48 bg-zinc-950 rounded-2xl overflow-hidden border border-zinc-800 shadow-inner">
-                          <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3560.1065012891965!2d87.971!3d26.541!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjYuMzMndiA4Ny.1OCdl!5e0!3m2!1sen!2snp!4v1620000000000!5m2!1sen!2snp" width="100%" height="100%" style={{border:0}} allowFullScreen="" loading="lazy"></iframe>
+                      <div className="space-y-3 relative z-10">
+                        <h3 className="font-bold text-sm text-amber-400 uppercase tracking-wider">SOCIAL MEDIA</h3>
+                        <div className="flex gap-3 pt-1">
+                          {settings.facebook && <a href={settings.facebook} target="_blank" className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-lg hover:scale-110 transition"><SocialIcons.Facebook /></a>}
+                          {settings.instagram && <a href={settings.instagram} target="_blank" className="w-10 h-10 rounded-xl bg-pink-600 text-white flex items-center justify-center shadow-lg hover:scale-110 transition"><SocialIcons.Instagram /></a>}
+                          {settings.whatsapp && <a href={`https://wa.me/${(settings.whatsapp||'').replace(/\D/g, '')}`} target="_blank" className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-lg hover:scale-110 transition"><SocialIcons.WhatsApp /></a>}
+                          {settings.youtube && <a href={settings.youtube} target="_blank" className="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center shadow-lg hover:scale-110 transition"><SocialIcons.YouTube /></a>}
+                          {settings.tiktok && <a href={settings.tiktok} target="_blank" className="w-10 h-10 rounded-xl bg-black border border-zinc-700 text-white flex items-center justify-center shadow-lg hover:scale-110 transition"><SocialIcons.TikTok /></a>}
                         </div>
-                        <div className="text-center pt-1">
-                          <a href={settings.mapLink} target="_blank" className="inline-block bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-2 rounded-xl text-[11px] font-bold transition shadow uppercase">🔗 OPEN IN GOOGLE MAPS APP</a>
+                      </div>
+
+                      <div className="space-y-2 relative z-10">
+                        <h3 className="font-bold text-sm text-amber-400 uppercase tracking-wider">LOCATION MAP</h3>
+                        <div className="w-full h-44 bg-zinc-950 rounded-2xl overflow-hidden border border-zinc-800 shadow-inner group">
+                          {settings.mapLink && settings.mapLink.includes('pb=') ? (
+                              <iframe src={settings.mapLink} width="100%" height="100%" style={{border:0}} allowFullScreen="" loading="lazy" className="opacity-80 group-hover:opacity-100 transition"></iframe>
+                          ) : (
+                              <div className="w-full h-full flex items-center justify-center text-gray-500 font-bold uppercase tracking-widest text-[10px]">MAP PREVIEW UNAVAILABLE</div>
+                          )}
+                        </div>
+                        <div className="text-center pt-2">
+                          <a href={settings.mapLink} target="_blank" className="inline-block bg-zinc-800 text-amber-400 px-4 py-1.5 rounded-lg hover:bg-zinc-700 transition font-black text-[10px] uppercase tracking-widest border border-zinc-700">🔗 OPEN GOOGLE MAPS APP</a>
                         </div>
                       </div>
 
                       {currentUser && (
-                        <form onSubmit={handleSaveSettings} className="bg-zinc-950 p-5 rounded-2xl border border-amber-500/30 space-y-3 pt-4 shadow-xl">
-                          <h4 className="font-black text-amber-400 text-sm uppercase border-b border-zinc-800 pb-2">⚙️ EDIT GLOBAL STORE SETTINGS</h4>
+                        <form onSubmit={(e) => { e.preventDefault(); handleSaveAction('saveSettings', settings, () => {}, "Settings"); }} className="bg-zinc-950 p-5 rounded-3xl border border-amber-500/30 space-y-4 pt-5 mt-6 shadow-2xl relative z-10">
+                          <h4 className="font-black text-amber-400 text-sm uppercase flex items-center gap-2 mb-4 border-b border-zinc-800 pb-3"><span>⚙️</span> ADMIN SETTINGS PANEL</h4>
                           <div className="grid grid-cols-2 gap-3">
-                            <div><label className="block text-[10px] text-gray-400 mb-1">WhatsApp No.</label><input type="text" value={settings.whatsapp} onChange={e=>setSettings({...settings, whatsapp:e.target.value})} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded text-white" /></div>
-                            <div><label className="block text-[10px] text-gray-400 mb-1">Contact Email</label><input type="text" value={settings.email} onChange={e=>setSettings({...settings, email:e.target.value})} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded text-white" /></div>
-                            <div className="col-span-2"><label className="block text-[10px] text-gray-400 mb-1">Full Address</label><input type="text" value={settings.address} onChange={e=>setSettings({...settings, address:e.target.value})} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded text-white" /></div>
-                            <div className="col-span-2"><label className="block text-[10px] text-gray-400 mb-1">Google Maps Link</label><input type="text" value={settings.mapLink} onChange={e=>setSettings({...settings, mapLink:e.target.value})} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded text-white" /></div>
-                            <div className="col-span-2"><label className="block text-[10px] text-gray-400 mb-1">Store Logo URL</label><input type="text" value={settings.logo} onChange={e=>setSettings({...settings, logo:e.target.value})} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded text-white" /></div>
-                            <div><label className="block text-[10px] text-gray-400 mb-1">Facebook URL</label><input type="text" value={settings.facebook || ''} onChange={e=>setSettings({...settings, facebook:e.target.value})} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded text-white" /></div>
-                            <div><label className="block text-[10px] text-gray-400 mb-1">Instagram URL</label><input type="text" value={settings.instagram || ''} onChange={e=>setSettings({...settings, instagram:e.target.value})} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded text-white" /></div>
-                            <div><label className="block text-[10px] text-gray-400 mb-1">YouTube URL</label><input type="text" value={settings.youtube || ''} onChange={e=>setSettings({...settings, youtube:e.target.value})} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded text-white" /></div>
-                            <div><label className="block text-[10px] text-gray-400 mb-1">TikTok URL</label><input type="text" value={settings.tiktok || ''} onChange={e=>setSettings({...settings, tiktok:e.target.value})} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded text-white" /></div>
+                              <div><label className="block text-[9px] text-gray-400 mb-1 font-bold uppercase">Phone</label><input type="text" value={settings.phone} onChange={e=>setSettings({...settings, phone:e.target.value})} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-white" /></div>
+                              <div><label className="block text-[9px] text-gray-400 mb-1 font-bold uppercase">WhatsApp</label><input type="text" value={settings.whatsapp} onChange={e=>setSettings({...settings, whatsapp:e.target.value})} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-white" /></div>
                           </div>
-                          <button type="submit" className="w-full bg-amber-500 hover:bg-amber-400 text-black py-2.5 rounded-xl font-black uppercase shadow-lg transition mt-2">SAVE ALL SETTINGS</button>
+                          <div><label className="block text-[9px] text-gray-400 mb-1 font-bold uppercase">Email</label><input type="text" value={settings.email} onChange={e=>setSettings({...settings, email:e.target.value})} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-white" /></div>
+                          <div><label className="block text-[9px] text-gray-400 mb-1 font-bold uppercase">Address</label><input type="text" value={settings.address} onChange={e=>setSettings({...settings, address:e.target.value})} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-white" /></div>
+                          <div><label className="block text-[9px] text-gray-400 mb-1 font-bold uppercase">Google Map Embed Link (src="")</label><input type="text" value={settings.mapLink} onChange={e=>setSettings({...settings, mapLink:e.target.value})} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-white" /></div>
+                          <div><label className="block text-[9px] text-gray-400 mb-1 font-bold uppercase">Website Logo URL</label><input type="text" value={settings.logo} onChange={e=>setSettings({...settings, logo:e.target.value})} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-white" /></div>
+                          
+                          <div className="pt-2 border-t border-zinc-800 grid grid-cols-2 gap-3">
+                              <div><label className="block text-[9px] text-blue-400 mb-1 font-bold uppercase">Facebook Link</label><input type="text" value={settings.facebook} onChange={e=>setSettings({...settings, facebook:e.target.value})} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-white" /></div>
+                              <div><label className="block text-[9px] text-pink-400 mb-1 font-bold uppercase">Instagram Link</label><input type="text" value={settings.instagram} onChange={e=>setSettings({...settings, instagram:e.target.value})} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-white" /></div>
+                              <div><label className="block text-[9px] text-rose-500 mb-1 font-bold uppercase">YouTube Link</label><input type="text" value={settings.youtube} onChange={e=>setSettings({...settings, youtube:e.target.value})} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-white" /></div>
+                              <div><label className="block text-[9px] text-gray-300 mb-1 font-bold uppercase">TikTok Link</label><input type="text" value={settings.tiktok} onChange={e=>setSettings({...settings, tiktok:e.target.value})} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-white" /></div>
+                          </div>
+                          
+                          <button type="submit" className="w-full bg-gradient-to-r from-amber-500 to-yellow-400 text-black py-3 rounded-xl font-black uppercase tracking-widest shadow-lg hover:opacity-90 transition mt-4">SAVE ALL SETTINGS</button>
                         </form>
                       )}
                     </div>
 
-                    <div className="bg-zinc-900 p-6 sm:p-8 rounded-3xl shadow-xl border border-zinc-800 space-y-6">
+                    <div className="bg-zinc-900/90 p-6 sm:p-8 rounded-3xl shadow-xl border border-zinc-800 space-y-6 flex flex-col justify-start">
                       <div className="space-y-2">
-                        <h3 className="font-bold text-sm text-amber-400 uppercase">💬 SEND DIRECT INQUIRY VIA WHATSAPP</h3>
-                        <p className="text-xs text-gray-400 leading-relaxed">Fill out this quick form, and we will redirect you to WhatsApp with your typed message perfectly formatted.</p>
+                          <h3 className="font-black text-base text-amber-400 uppercase tracking-wider">💬 DIRECT WHATSAPP CHAT</h3>
+                          <p className="text-[11px] text-gray-400 leading-relaxed">Fill out this form and we will instantly transfer you to WhatsApp with a pre-written message to our team!</p>
                       </div>
                       <form onSubmit={(e)=>{
                         e.preventDefault();
                         const cleanNum = (settings.whatsapp || '').replace(/\D/g, '');
-                        if(!cleanNum) return showToast("WhatsApp number not configured");
-                        const text = encodeURIComponent(`*New Inquiry from Website*\n\n*Name:* ${e.target.cname.value}\n*Phone:* ${e.target.cphone.value}\n*Message:* ${e.target.cmsg.value}`);
+                        const text = encodeURIComponent(`Name: ${e.target.cname.value}\nPhone: ${e.target.cphone.value}\nMessage: ${e.target.cmsg.value}`);
                         window.open(`https://wa.me/${cleanNum}?text=${text}`, '_blank');
                       }} className="space-y-4 text-xs">
                         <div>
-                          <label className="block font-bold mb-1.5 text-gray-300">Your Full Name</label>
-                          <input type="text" name="cname" required placeholder="e.g. John Doe" className="w-full p-3.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white focus:outline-none focus:border-emerald-500 transition" />
+                          <label className="block font-bold mb-1.5 text-gray-300 uppercase tracking-wider text-[10px]">Your Name</label>
+                          <input type="text" name="cname" required placeholder="Full Name" className="w-full p-3.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white focus:outline-none focus:border-emerald-500 transition" />
                         </div>
                         <div>
-                          <label className="block font-bold mb-1.5 text-gray-300">Your Phone Number</label>
-                          <input type="text" name="cphone" required placeholder="e.g. +977 98..." className="w-full p-3.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white focus:outline-none focus:border-emerald-500 transition" />
+                          <label className="block font-bold mb-1.5 text-gray-300 uppercase tracking-wider text-[10px]">Phone Number</label>
+                          <input type="text" name="cphone" required placeholder="Mobile Number" className="w-full p-3.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white focus:outline-none focus:border-emerald-500 transition" />
                         </div>
                         <div>
-                          <label className="block font-bold mb-1.5 text-gray-300">Detailed Message / Inquiry</label>
-                          <textarea rows="5" name="cmsg" required placeholder="Write your requirement or questions here..." className="w-full p-3.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white focus:outline-none focus:border-emerald-500 transition"></textarea>
+                          <label className="block font-bold mb-1.5 text-gray-300 uppercase tracking-wider text-[10px]">Message</label>
+                          <textarea rows="5" name="cmsg" required placeholder="How can we help you?" className="w-full p-3.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white resize-none focus:outline-none focus:border-emerald-500 transition"></textarea>
                         </div>
-                        <button type="submit" className="w-full bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-500 hover:to-green-400 text-white py-4 rounded-xl font-black shadow-lg shadow-emerald-900/50 transition uppercase flex items-center justify-center gap-2">
-                          <SocialIcons.WhatsApp /> <span>OPEN IN WHATSAPP</span>
-                        </button>
+                        <button type="submit" className="w-full bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-500 hover:to-green-400 text-white py-4 rounded-xl font-black shadow-lg transition transform active:scale-95 uppercase tracking-widest">SEND VIA WHATSAPP</button>
                       </form>
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* DOWNLOAD PAGE */}
               {page === 'download' && (
                 <div className="max-w-7xl mx-auto px-4 py-12 space-y-6">
                   <div className="text-center space-y-2">
-                    <h2 className="text-2xl sm:text-3xl font-black text-white uppercase">SOFTWARE & UTILITY DOWNLOADS</h2>
-                    <p className="text-xs sm:text-sm text-gray-400">Download recommended repair utility tools and catalogs directly via Google Drive.</p>
+                    <h2 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-wider">SOFTWARE & UTILITIES</h2>
+                    <p className="text-xs sm:text-sm text-gray-400">Download recommended repair tools, drivers, and catalogs safely via Google Drive.</p>
                   </div>
 
                   {currentUser && (
                     <div className="flex justify-end">
-                      <button onClick={() => setEditingDownload({ id: '', name: '', category: 'Utility Tool', size: '10 MB', image: '', link: '', desc: '' })} className="bg-amber-500 hover:bg-amber-400 text-black px-4 py-2 rounded-xl text-xs font-black shadow uppercase transition">
+                      <button onClick={() => setEditingDownload({ id: '', name: '', category: 'Utility Tool', size: '10 MB', image: '', link: '', desc: '' })} className="bg-amber-500 hover:bg-amber-400 text-black px-5 py-2.5 rounded-xl text-xs font-black shadow-lg uppercase transition">
                         ➕ ADD NEW DOWNLOAD
                       </button>
                     </div>
                   )}
 
                   <div className="flex flex-col sm:flex-row gap-3 justify-between items-center bg-zinc-900/90 p-4 rounded-2xl border border-zinc-800 shadow-xl">
-                    <input 
-                      type="text" 
-                      placeholder="Search downloads..." 
-                      value={downloadSearch}
-                      onChange={(e) => setDownloadSearch(e.target.value)}
-                      className="w-full sm:w-80 p-2.5 bg-zinc-950 border border-zinc-700 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500"
-                    />
+                    <input type="text" placeholder="Search files..." value={downloadSearch} onChange={(e) => setDownloadSearch(e.target.value)} className="w-full sm:w-80 p-2.5 bg-zinc-950 border border-zinc-700 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500" />
                     <div className="flex gap-2 overflow-x-auto w-full sm:w-auto pb-1 no-scrollbar">
-                      {['All', ...new Set(downloads.map(d => d?.category).filter(Boolean))].map(cat => (
-                        <button key={cat} onClick={()=>setDownloadFilter(cat)} className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition ${downloadFilter===cat?'bg-amber-500 text-black font-black':'bg-zinc-950 text-gray-300 border border-zinc-800 hover:border-amber-500/50'}`}>{cat}</button>
+                      {['All', ...new Set(downloads.map(d => d.category).filter(Boolean))].map(cat => (
+                        <button key={cat} onClick={()=>setDownloadFilter(cat)} className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition ${downloadFilter===cat?'bg-amber-500 text-black font-black shadow-lg':'bg-zinc-950 text-gray-300 border border-zinc-800 hover:border-amber-500/50'}`}>{cat}</button>
                       ))}
                     </div>
                   </div>
 
                   {filteredDownloads.length === 0 ? (
-                    <div className="text-center py-20 text-gray-500 text-xs uppercase font-bold border border-dashed border-zinc-800 rounded-3xl bg-zinc-900/50">NO DOWNLOADS FOUND.</div>
+                    <div className="text-center py-24 bg-zinc-900/50 rounded-3xl border border-zinc-800/50">
+                        <div className="text-4xl mb-3 opacity-50">📥</div>
+                        <div className="text-gray-500 text-xs uppercase font-bold tracking-widest">NO DOWNLOADS FOUND.</div>
+                    </div>
                   ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                       {filteredDownloads.map(item => (
-                        <div key={item.id} className="bg-zinc-900 rounded-3xl shadow-xl border border-zinc-800 overflow-hidden flex flex-col justify-between hover:border-amber-500/40 transition">
+                        <div key={item.id} className="bg-zinc-900 rounded-3xl shadow-xl border border-zinc-800 overflow-hidden flex flex-col justify-between group hover:border-amber-500/40 transition">
                           <div>
-                            <div className="aspect-video sm:aspect-[4/3] bg-zinc-950 relative">
-                              <img src={item.image || 'https://placehold.co/600x400/18181b/f59e0b?text=Software'} alt={item.name} className="w-full h-full object-cover" onError={(e)=>{e.target.src='https://placehold.co/600x400/18181b/f59e0b';}} />
-                              <div className="absolute top-3 right-3 bg-black/80 backdrop-blur text-white text-[10px] font-bold px-2 py-1 rounded-lg border border-zinc-700">{item.size || 'N/A'}</div>
+                            <div className="h-32 bg-zinc-950 relative overflow-hidden">
+                                <img src={item.image || 'https://placehold.co/400x300/18181b/10b981?text=Software'} alt={item.name} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition duration-300" />
+                                <span className="absolute top-3 left-3 text-[9px] bg-black/80 text-amber-400 border border-amber-500/50 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider backdrop-blur-sm">{item.category}</span>
                             </div>
-                            <div className="p-5 space-y-2">
-                              <span className="text-[10px] bg-amber-500/10 text-amber-400 px-2.5 py-1 rounded-md font-bold border border-amber-500/20 uppercase tracking-wide">{item.category || 'Utility'}</span>
-                              <h3 className="font-bold text-sm text-white line-clamp-1">{item.name || 'Unnamed Software'}</h3>
-                              <p className="text-xs text-gray-400 line-clamp-2 leading-relaxed">{item.desc || 'No description available'}</p>
+                            <div className="p-4 space-y-1.5">
+                              <h3 className="font-bold text-sm text-white line-clamp-1">{item.name}</h3>
+                              <p className="text-[10px] text-emerald-400 font-bold tracking-widest">{item.size}</p>
+                              <p className="text-[11px] text-gray-400 line-clamp-2 leading-relaxed pt-1">{item.desc}</p>
                             </div>
                           </div>
-                          <div className="p-5 pt-0 space-y-3">
-                            <a href={item.link || '#'} target="_blank" className="block w-full bg-amber-500 hover:bg-amber-400 text-black text-center py-3 rounded-xl text-xs font-black uppercase shadow-lg transition tracking-wide">📥 DOWNLOAD VIA DRIVE</a>
+                          <div className="p-4 pt-0 space-y-2 mt-2 border-t border-zinc-800/50">
+                            <a href={item.link} target="_blank" className="block w-full bg-zinc-800 hover:bg-amber-500 hover:text-black text-gray-300 text-center py-2.5 rounded-xl text-xs font-black uppercase shadow transition group-hover:border-amber-500 border border-transparent">📥 GOOGLE DRIVE</a>
                             {currentUser && (
-                              <div className="flex gap-2 pt-2 border-t border-zinc-800">
-                                <button onClick={() => setEditingDownload(item)} className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white py-2 rounded-xl text-[10px] font-bold transition">Edit</button>
-                                <button onClick={() => handleDeleteDownload(item.id)} className="flex-1 bg-rose-600/20 hover:bg-rose-600/40 text-rose-400 py-2 rounded-xl text-[10px] font-bold transition border border-rose-500/30">Delete</button>
+                              <div className="flex gap-1 pt-1">
+                                <button onClick={() => setEditingDownload(item)} className="flex-1 bg-zinc-800 text-amber-400 py-1.5 rounded-lg text-[10px] font-bold border border-zinc-700 hover:bg-zinc-700 transition">Edit</button>
+                                <button onClick={() => handleDeleteAction('deleteDownload', item.id, 'Download Link')} className="flex-1 bg-rose-900/50 text-rose-400 py-1.5 rounded-lg text-[10px] font-bold border border-rose-900 hover:bg-rose-800 transition">Delete</button>
                               </div>
                             )}
                           </div>
@@ -671,115 +664,150 @@
               )}
             </main>
 
-            {}
-            
-            {/* LOGIN MODAL */}
             {showLoginModal && (
-              <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 z-[60]">
-                <div className="bg-zinc-900 border border-amber-500/30 rounded-3xl max-w-sm w-full p-8 space-y-6 shadow-2xl relative">
-                  <button onClick={() => setShowLoginModal(false)} className="absolute top-5 right-5 w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-gray-400 hover:text-white font-bold transition">✕</button>
-                  <div className="text-center space-y-2">
-                    <div className="w-12 h-12 bg-amber-500 rounded-xl text-black flex items-center justify-center font-black text-xl mx-auto shadow-lg shadow-amber-500/30 mb-4">SH</div>
-                    <h3 className="font-black text-lg text-white uppercase tracking-widest">SECURE LOGIN</h3>
-                    <p className="text-[10px] text-gray-400 uppercase">Authorized Personnel Only</p>
+              <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-50">
+                <div className="bg-zinc-900 border border-zinc-800 rounded-3xl max-w-sm w-full p-8 space-y-6 shadow-2xl relative">
+                  <button onClick={() => setShowLoginModal(false)} className="absolute top-4 right-4 w-8 h-8 rounded-full bg-zinc-800 hover:bg-zinc-700 text-gray-400 hover:text-white flex items-center justify-center font-bold transition">✕</button>
+                  <div className="text-center">
+                      <div className="w-12 h-12 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center mx-auto text-xl mb-3">🛡️</div>
+                      <h3 className="font-black text-lg text-white uppercase tracking-wider">ADMIN LOGIN</h3>
+                      <p className="text-[10px] text-gray-500 uppercase tracking-widest mt-1">Authorized Access Only</p>
                   </div>
                   <form onSubmit={handleLogin} className="space-y-4 text-xs">
-                    <div><input type="text" required placeholder="Admin Username" value={loginCreds.user} onChange={e=>setLoginCreds({...loginCreds, user:e.target.value})} className="w-full p-3.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white focus:outline-none focus:border-amber-500 transition" /></div>
-                    <div><input type="password" required placeholder="Admin Password" value={loginCreds.pass} onChange={e=>setLoginCreds({...loginCreds, pass:e.target.value})} className="w-full p-3.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white focus:outline-none focus:border-amber-500 transition" /></div>
-                    <button type="submit" className="w-full bg-amber-500 hover:bg-amber-400 text-black py-4 rounded-xl font-black shadow-lg uppercase transition tracking-wider">VERIFY & LOGIN</button>
+                    <input type="text" required placeholder="User ID / Username" value={loginCreds.user} onChange={e=>setLoginCreds({...loginCreds, user:e.target.value})} className="w-full p-3.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white focus:outline-none focus:border-amber-500 transition" />
+                    <input type="password" required placeholder="Password" value={loginCreds.pass} onChange={e=>setLoginCreds({...loginCreds, pass:e.target.value})} className="w-full p-3.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white focus:outline-none focus:border-amber-500 transition" />
+                    <button type="submit" className="w-full bg-gradient-to-r from-amber-500 to-yellow-400 text-black py-4 rounded-xl font-black shadow-lg uppercase tracking-widest hover:opacity-90 transition">ACCESS SYSTEM</button>
                   </form>
                 </div>
               </div>
             )}
 
-            {/* EDIT PRODUCT MODAL */}
+            {showPasswordModal && (
+              <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-50">
+                <div className="bg-zinc-900 border border-amber-500/30 rounded-3xl max-w-sm w-full p-8 space-y-6 shadow-2xl relative">
+                  <button onClick={() => setShowPasswordModal(false)} className="absolute top-4 right-4 w-8 h-8 rounded-full bg-zinc-800 hover:bg-zinc-700 text-gray-400 hover:text-white flex items-center justify-center font-bold transition">✕</button>
+                  <div className="text-center">
+                      <div className="w-12 h-12 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center mx-auto text-xl mb-3">🔑</div>
+                      <h3 className="font-black text-lg text-white uppercase tracking-wider">CHANGE PASSWORD</h3>
+                  </div>
+                  <form onSubmit={handleChangePassword} className="space-y-4 text-xs">
+                    <input type="password" required placeholder="Current Password" value={passCreds.oldPass} onChange={e=>setPassCreds({...passCreds, oldPass:e.target.value})} className="w-full p-3.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white focus:outline-none focus:border-amber-500 transition" />
+                    <input type="password" required placeholder="New Password" value={passCreds.newPass} onChange={e=>setPassCreds({...passCreds, newPass:e.target.value})} className="w-full p-3.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white focus:outline-none focus:border-amber-500 transition" />
+                    <input type="password" required placeholder="Confirm New Password" value={passCreds.confirmPass} onChange={e=>setPassCreds({...passCreds, confirmPass:e.target.value})} className="w-full p-3.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white focus:outline-none focus:border-amber-500 transition" />
+                    <button type="submit" className="w-full bg-amber-500 text-black py-4 rounded-xl font-black shadow-lg uppercase tracking-widest hover:opacity-90 transition">UPDATE SECURITY</button>
+                  </form>
+                </div>
+              </div>
+            )}
+
             {editingProduct && (
-              <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 z-[60] overflow-y-auto">
-                <div className="bg-zinc-900 border border-zinc-700 rounded-3xl max-w-md w-full p-6 sm:p-8 space-y-6 shadow-2xl relative my-auto">
-                  <button onClick={() => setEditingProduct(null)} className="absolute top-5 right-5 w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-gray-400 hover:text-white font-bold transition">✕</button>
-                  <h3 className="font-black text-base text-white uppercase border-b border-zinc-800 pb-3">{editingProduct.id ? 'EDIT PRODUCT' : 'ADD NEW PRODUCT'}</h3>
-                  <form onSubmit={handleSaveProduct} className="space-y-4 text-xs">
-                    <div><label className="block text-gray-400 mb-1 ml-1 font-bold">Product Name</label><input type="text" required value={editingProduct.name || ''} onChange={e=>setEditingProduct({...editingProduct, name:e.target.value})} className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-white" /></div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div><label className="block text-gray-400 mb-1 ml-1 font-bold">Category</label><input type="text" required value={editingProduct.category || ''} onChange={e=>setEditingProduct({...editingProduct, category:e.target.value})} className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-white" /></div>
-                        <div><label className="block text-gray-400 mb-1 ml-1 font-bold">Price</label><input type="text" required value={editingProduct.price || ''} onChange={e=>setEditingProduct({...editingProduct, price:e.target.value})} className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-white" /></div>
-                    </div>
-                    <div><label className="block text-gray-400 mb-1 ml-1 font-bold">Main Image URL</label><input type="url" required value={editingProduct.image || ''} onChange={e=>setEditingProduct({...editingProduct, image:e.target.value})} className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-white" /></div>
-                    <div><label className="block text-gray-400 mb-1 ml-1 font-bold">Description</label><textarea rows="3" required value={editingProduct.description || ''} onChange={e=>setEditingProduct({...editingProduct, description:e.target.value})} className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-white"></textarea></div>
-                    <button type="submit" className="w-full bg-amber-500 hover:bg-amber-400 text-black py-4 rounded-xl font-black uppercase transition mt-2 shadow-lg">SAVE PRODUCT DATA</button>
-                  </form>
+              <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-50 py-10">
+                <div className="bg-zinc-900 border border-zinc-800 rounded-3xl max-w-md w-full p-6 shadow-2xl relative max-h-full flex flex-col">
+                  <button onClick={() => setEditingProduct(null)} className="absolute top-4 right-4 w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-gray-400 hover:text-white font-bold z-10">✕</button>
+                  <h3 className="font-black text-base text-white uppercase mb-4 flex-shrink-0 flex items-center gap-2"><span>🛍️</span> {editingProduct.id ? 'EDIT PRODUCT' : 'ADD PRODUCT'}</h3>
+                  <div className="overflow-y-auto pr-2 pb-2 space-y-4 no-scrollbar flex-grow">
+                      <form id="productForm" onSubmit={(e) => { e.preventDefault(); handleSaveAction('saveProduct', editingProduct, setEditingProduct, 'Product'); }} className="space-y-3 text-xs">
+                        <div><label className="block text-[10px] text-gray-400 mb-1 font-bold">Product Name</label><input type="text" required value={editingProduct.name} onChange={e=>setEditingProduct({...editingProduct, name:e.target.value})} className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-white" /></div>
+                        <div><label className="block text-[10px] text-gray-400 mb-1 font-bold">Category</label><input type="text" required value={editingProduct.category} onChange={e=>setEditingProduct({...editingProduct, category:e.target.value})} className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-white" /></div>
+                        <div><label className="block text-[10px] text-gray-400 mb-1 font-bold">Price</label><input type="text" required value={editingProduct.price} onChange={e=>setEditingProduct({...editingProduct, price:e.target.value})} className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-white" /></div>
+                        
+                        {/* Image Upload Zone */}
+                        <div className="bg-zinc-950 p-4 rounded-xl border border-zinc-800 space-y-3">
+                            <label className="block text-[10px] text-amber-400 font-bold uppercase">🖼️ Image Upload</label>
+                            <input type="file" accept="image/*" onChange={(e) => handleImageFileChange(e, setEditingProduct, editingProduct)} className="w-full text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:bg-zinc-800 file:text-white hover:file:bg-zinc-700 cursor-pointer" />
+                            <div className="text-center text-gray-600 text-[10px] font-black uppercase">— OR PASTE URL —</div>
+                            <input type="text" placeholder="https://..." value={editingProduct.image} onChange={e=>setEditingProduct({...editingProduct, image:e.target.value})} className="w-full p-2.5 bg-zinc-900 border border-zinc-700 rounded-lg text-white" />
+                            {editingProduct.image && <img src={editingProduct.image} alt="Preview" className="w-full h-24 object-cover rounded-xl mt-2 border border-zinc-800" />}
+                        </div>
+
+                        <div><label className="block text-[10px] text-gray-400 mb-1 font-bold">Description</label><textarea rows="3" value={editingProduct.description} onChange={e=>setEditingProduct({...editingProduct, description:e.target.value})} className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-white resize-none"></textarea></div>
+                      </form>
+                  </div>
+                  <div className="pt-4 flex-shrink-0 border-t border-zinc-800">
+                      <button form="productForm" type="submit" className="w-full bg-amber-500 text-black py-3.5 rounded-xl font-black uppercase tracking-widest shadow-lg hover:opacity-90">SAVE PRODUCT</button>
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* EDIT DOWNLOAD MODAL */}
             {editingDownload && (
-              <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 z-[60] overflow-y-auto">
-                <div className="bg-zinc-900 border border-zinc-700 rounded-3xl max-w-md w-full p-6 sm:p-8 space-y-6 shadow-2xl relative my-auto">
-                  <button onClick={() => setEditingDownload(null)} className="absolute top-5 right-5 w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-gray-400 hover:text-white font-bold transition">✕</button>
-                  <h3 className="font-black text-base text-white uppercase border-b border-zinc-800 pb-3">{editingDownload.id ? 'EDIT DOWNLOAD' : 'ADD NEW DOWNLOAD'}</h3>
-                  <form onSubmit={handleSaveDownload} className="space-y-4 text-xs">
-                    <div><label className="block text-gray-400 mb-1 ml-1 font-bold">Software Name</label><input type="text" required value={editingDownload.name || ''} onChange={e=>setEditingDownload({...editingDownload, name:e.target.value})} className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-white" /></div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div><label className="block text-gray-400 mb-1 ml-1 font-bold">Category</label><input type="text" required value={editingDownload.category || ''} onChange={e=>setEditingDownload({...editingDownload, category:e.target.value})} className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-white" /></div>
-                        <div><label className="block text-gray-400 mb-1 ml-1 font-bold">File Size</label><input type="text" required value={editingDownload.size || ''} onChange={e=>setEditingDownload({...editingDownload, size:e.target.value})} className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-white" /></div>
-                    </div>
-                    <div><label className="block text-gray-400 mb-1 ml-1 font-bold">Google Drive Link</label><input type="url" required value={editingDownload.link || ''} onChange={e=>setEditingDownload({...editingDownload, link:e.target.value})} className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-white" /></div>
-                    <div><label className="block text-gray-400 mb-1 ml-1 font-bold">Image URL</label><input type="url" required value={editingDownload.image || ''} onChange={e=>setEditingDownload({...editingDownload, image:e.target.value})} className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-white" /></div>
-                    <div><label className="block text-gray-400 mb-1 ml-1 font-bold">Description</label><textarea rows="3" required value={editingDownload.desc || ''} onChange={e=>setEditingDownload({...editingDownload, desc:e.target.value})} className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-white"></textarea></div>
-                    <button type="submit" className="w-full bg-amber-500 hover:bg-amber-400 text-black py-4 rounded-xl font-black uppercase transition mt-2 shadow-lg">SAVE SOFTWARE LINK</button>
-                  </form>
+              <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-50 py-10">
+                <div className="bg-zinc-900 border border-zinc-800 rounded-3xl max-w-md w-full p-6 shadow-2xl relative max-h-full flex flex-col">
+                  <button onClick={() => setEditingDownload(null)} className="absolute top-4 right-4 w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-gray-400 hover:text-white font-bold z-10">✕</button>
+                  <h3 className="font-black text-base text-white uppercase mb-4 flex-shrink-0 flex items-center gap-2"><span>📥</span> {editingDownload.id ? 'EDIT DOWNLOAD' : 'ADD DOWNLOAD'}</h3>
+                  <div className="overflow-y-auto pr-2 pb-2 space-y-4 no-scrollbar flex-grow">
+                      <form id="downloadForm" onSubmit={(e) => { e.preventDefault(); handleSaveAction('saveDownload', editingDownload, setEditingDownload, 'Download Link'); }} className="space-y-3 text-xs">
+                        <div><label className="block text-[10px] text-gray-400 mb-1 font-bold">File / Tool Name</label><input type="text" required value={editingDownload.name} onChange={e=>setEditingDownload({...editingDownload, name:e.target.value})} className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-white" /></div>
+                        <div><label className="block text-[10px] text-gray-400 mb-1 font-bold">Category</label><input type="text" required value={editingDownload.category} onChange={e=>setEditingDownload({...editingDownload, category:e.target.value})} className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-white" /></div>
+                        <div><label className="block text-[10px] text-gray-400 mb-1 font-bold">File Size (e.g. 45 MB)</label><input type="text" required value={editingDownload.size} onChange={e=>setEditingDownload({...editingDownload, size:e.target.value})} className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-white" /></div>
+                        <div><label className="block text-[10px] text-gray-400 mb-1 font-bold">Google Drive Link</label><input type="text" required value={editingDownload.link} onChange={e=>setEditingDownload({...editingDownload, link:e.target.value})} className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-white" /></div>
+                        
+                        <div className="bg-zinc-950 p-4 rounded-xl border border-zinc-800 space-y-3">
+                            <label className="block text-[10px] text-amber-400 font-bold uppercase">🖼️ Thumbnail Upload</label>
+                            <input type="file" accept="image/*" onChange={(e) => handleImageFileChange(e, setEditingDownload, editingDownload)} className="w-full text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:bg-zinc-800 file:text-white hover:file:bg-zinc-700 cursor-pointer" />
+                            <div className="text-center text-gray-600 text-[10px] font-black uppercase">— OR PASTE URL —</div>
+                            <input type="text" placeholder="https://..." value={editingDownload.image} onChange={e=>setEditingDownload({...editingDownload, image:e.target.value})} className="w-full p-2.5 bg-zinc-900 border border-zinc-700 rounded-lg text-white" />
+                        </div>
+                        <div><label className="block text-[10px] text-gray-400 mb-1 font-bold">Description</label><textarea rows="3" value={editingDownload.desc} onChange={e=>setEditingDownload({...editingDownload, desc:e.target.value})} className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-white resize-none"></textarea></div>
+                      </form>
+                  </div>
+                  <div className="pt-4 flex-shrink-0 border-t border-zinc-800">
+                      <button form="downloadForm" type="submit" className="w-full bg-amber-500 text-black py-3.5 rounded-xl font-black uppercase tracking-widest shadow-lg hover:opacity-90">SAVE DOWNLOAD</button>
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* EDIT TEAM MODAL */}
             {editingTeam && (
-              <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 z-[60] overflow-y-auto">
-                <div className="bg-zinc-900 border border-zinc-700 rounded-3xl max-w-md w-full p-6 sm:p-8 space-y-6 shadow-2xl relative my-auto">
-                  <button onClick={() => setEditingTeam(null)} className="absolute top-5 right-5 w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-gray-400 hover:text-white font-bold transition">✕</button>
-                  <h3 className="font-black text-base text-white uppercase border-b border-zinc-800 pb-3">{editingTeam.id ? 'EDIT TEAM MEMBER' : 'ADD NEW MEMBER'}</h3>
-                  <form onSubmit={handleSaveTeam} className="space-y-4 text-xs">
-                    <div><label className="block text-gray-400 mb-1 ml-1 font-bold">Full Name</label><input type="text" required value={editingTeam.name || ''} onChange={e=>setEditingTeam({...editingTeam, name:e.target.value})} className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-white" /></div>
-                    <div><label className="block text-gray-400 mb-1 ml-1 font-bold">Role / Position</label><input type="text" required value={editingTeam.role || ''} onChange={e=>setEditingTeam({...editingTeam, role:e.target.value})} className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-white" /></div>
-                    <div><label className="block text-gray-400 mb-1 ml-1 font-bold">Photo URL</label><input type="url" required value={editingTeam.image || ''} onChange={e=>setEditingTeam({...editingTeam, image:e.target.value})} className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-white" /></div>
-                    <div><label className="block text-gray-400 mb-1 ml-1 font-bold">Short Description</label><textarea rows="3" required value={editingTeam.desc || ''} onChange={e=>setEditingTeam({...editingTeam, desc:e.target.value})} className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-white"></textarea></div>
-                    <button type="submit" className="w-full bg-amber-500 hover:bg-amber-400 text-black py-4 rounded-xl font-black uppercase transition mt-2 shadow-lg">SAVE TEAM MEMBER</button>
-                  </form>
+              <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-50 py-10">
+                <div className="bg-zinc-900 border border-zinc-800 rounded-3xl max-w-md w-full p-6 shadow-2xl relative max-h-full flex flex-col">
+                  <button onClick={() => setEditingTeam(null)} className="absolute top-4 right-4 w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-gray-400 hover:text-white font-bold z-10">✕</button>
+                  <h3 className="font-black text-base text-white uppercase mb-4 flex-shrink-0 flex items-center gap-2"><span>👤</span> {editingTeam.id ? 'EDIT TEAM MEMBER' : 'ADD TEAM MEMBER'}</h3>
+                  <div className="overflow-y-auto pr-2 pb-2 space-y-4 no-scrollbar flex-grow">
+                      <form id="teamForm" onSubmit={(e) => { e.preventDefault(); handleSaveAction('saveTeam', editingTeam, setEditingTeam, 'Team Member'); }} className="space-y-3 text-xs">
+                        <div><label className="block text-[10px] text-gray-400 mb-1 font-bold">Full Name</label><input type="text" required value={editingTeam.name} onChange={e=>setEditingTeam({...editingTeam, name:e.target.value})} className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-white" /></div>
+                        <div><label className="block text-[10px] text-gray-400 mb-1 font-bold">Role / Position</label><input type="text" required value={editingTeam.role} onChange={e=>setEditingTeam({...editingTeam, role:e.target.value})} className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-white" /></div>
+                        
+                        <div className="bg-zinc-950 p-4 rounded-xl border border-zinc-800 space-y-3">
+                            <label className="block text-[10px] text-amber-400 font-bold uppercase">🖼️ Profile Picture Upload</label>
+                            <input type="file" accept="image/*" onChange={(e) => handleImageFileChange(e, setEditingTeam, editingTeam)} className="w-full text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:bg-zinc-800 file:text-white hover:file:bg-zinc-700 cursor-pointer" />
+                            <div className="text-center text-gray-600 text-[10px] font-black uppercase">— OR PASTE URL —</div>
+                            <input type="text" placeholder="https://..." value={editingTeam.image} onChange={e=>setEditingTeam({...editingTeam, image:e.target.value})} className="w-full p-2.5 bg-zinc-900 border border-zinc-700 rounded-lg text-white" />
+                        </div>
+                        <div><label className="block text-[10px] text-gray-400 mb-1 font-bold">Short Bio</label><textarea rows="3" value={editingTeam.desc} onChange={e=>setEditingTeam({...editingTeam, desc:e.target.value})} className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-white resize-none"></textarea></div>
+                      </form>
+                  </div>
+                  <div className="pt-4 flex-shrink-0 border-t border-zinc-800">
+                      <button form="teamForm" type="submit" className="w-full bg-amber-500 text-black py-3.5 rounded-xl font-black uppercase tracking-widest shadow-lg hover:opacity-90">SAVE MEMBER</button>
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* PRODUCT DETAILS MODAL (VIEWER) */}
+            {/* PRODUCT DETAILS MODAL */}
             {selectedProduct && (
-              <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 z-[60]">
-                <div className="bg-zinc-900 border border-amber-500/20 rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl relative">
-                  <button onClick={() => setSelectedProduct(null)} className="absolute top-5 right-5 w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-gray-400 hover:text-white font-bold transition z-10">✕</button>
+              <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-50">
+                <div className="bg-zinc-900 border border-zinc-800 rounded-3xl max-w-lg w-full p-6 space-y-5 shadow-2xl relative">
+                  <button onClick={() => setSelectedProduct(null)} className="absolute top-4 right-4 w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-gray-300 hover:text-white font-bold shadow-lg">✕</button>
+                  <h3 className="font-black text-lg text-white pr-6 uppercase tracking-wider">{selectedProduct.name}</h3>
                   
-                  <div className="pr-8 border-b border-zinc-800 pb-3">
-                    <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider">{selectedProduct.category || 'Category'}</span>
-                    <h3 className="font-black text-xl text-white">{selectedProduct.name || 'Unnamed Product'}</h3>
-                  </div>
-                  
-                  <div className="bg-zinc-950 rounded-2xl overflow-hidden border border-zinc-800 p-2">
-                    <img src={selectedProduct.image || 'https://placehold.co/600x400/18181b/f59e0b?text=Image'} alt={selectedProduct.name} className="w-full h-48 sm:h-64 object-contain rounded-xl" onError={(e)=>{e.target.src='https://placehold.co/600x400/18181b/f59e0b?text=Error';}} />
+                  <div className="relative rounded-2xl overflow-hidden border border-zinc-800 shadow-inner">
+                      <img src={selectedProduct.image || 'https://placehold.co/400x300/18181b/f59e0b?text=No+Image'} alt={selectedProduct.name} className="w-full h-56 object-cover bg-zinc-950" />
+                      <span className="absolute top-3 left-3 text-[10px] bg-black/80 text-amber-400 border border-amber-500/50 px-3 py-1 rounded-full font-bold uppercase tracking-wider backdrop-blur-sm">{selectedProduct.category}</span>
                   </div>
 
-                  <div className="bg-zinc-950 p-4 rounded-2xl border border-zinc-800">
-                    <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">{selectedProduct.description || 'No detailed description available.'}</p>
+                  <div className="bg-zinc-950 p-4 rounded-xl border border-zinc-800/50">
+                      <p className="text-sm text-gray-300 leading-relaxed">{selectedProduct.description}</p>
                   </div>
 
-                  <div className="flex justify-between items-center pt-2">
-                    <div>
-                        <span className="text-xs text-gray-500 uppercase font-bold block">Current Price</span>
-                        <span className="text-2xl font-black text-amber-400">{selectedProduct.price || 'N/A'}</span>
-                    </div>
+                  <div className="flex justify-between items-center pt-2 border-t border-zinc-800">
+                    <span className="text-xl font-black text-amber-400">{selectedProduct.price}</span>
                     {(() => {
-                      const cleanNum = (settings?.whatsapp || '').replace(/\D/g, '');
-                      const waLink = `https://wa.me/${cleanNum}?text=` + encodeURIComponent(`Hello Solution Hub, I want to purchase:\n*${selectedProduct.name}*\nPrice: ${selectedProduct.price}`);
+                      const cleanNum = (settings.whatsapp || '').replace(/\D/g, '');
+                      const waLink = `https://wa.me/${cleanNum}?text=` + encodeURIComponent(`Hello Solution Hub, I want to purchase: ${selectedProduct.name} (${selectedProduct.price})`);
                       return (
-                        <a href={waLink} target="_blank" className="bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-500 hover:to-green-400 text-white px-6 py-3.5 rounded-xl text-xs font-black shadow-lg shadow-emerald-900/50 transition uppercase flex gap-2 items-center">
-                            <SocialIcons.WhatsApp /> SHOP NOW
+                        <a href={waLink} target="_blank" className="bg-gradient-to-r from-emerald-600 to-green-500 text-white px-6 py-3 rounded-xl text-xs font-black shadow-lg hover:opacity-90 transition transform active:scale-95 uppercase tracking-widest flex items-center gap-2">
+                           <SocialIcons.WhatsApp /> BUY VIA WHATSAPP
                         </a>
                       );
                     })()}
@@ -788,45 +816,38 @@
               </div>
             )}
 
-            {/* Footer with Menu and Copyright */}
-            <footer className="bg-black text-white py-10 px-4 mt-16 border-t border-zinc-800/80 space-y-8 relative z-10">
-              <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-                <div className="flex items-center gap-3 cursor-pointer hover:scale-105 transition" onClick={() => setPage('home')}>
-                  <div className="w-10 h-10 rounded-xl bg-amber-500 text-black flex items-center justify-center font-black text-sm shadow-lg shadow-amber-500/20">SH</div>
-                  <div>
-                    <span className="font-black text-sm tracking-widest uppercase block">SOLUTION HUB</span>
-                    <span className="text-[9px] text-amber-500 uppercase tracking-widest font-bold">Tech & Studio Experts</span>
-                  </div>
+            <footer className="bg-black text-white py-8 px-4 mt-16 border-t border-zinc-800/80 space-y-6">
+              <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+                <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setPage('home')}>
+                  <div className="w-10 h-10 rounded-2xl bg-amber-500 text-black flex items-center justify-center font-black text-sm shadow-[0_0_15px_rgba(245,158,11,0.3)] group-hover:scale-105 transition">SH</div>
+                  <span className="font-black text-sm tracking-widest uppercase text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">SOLUTION HUB</span>
                 </div>
                 
-                <div className="flex flex-wrap justify-center gap-6 text-xs font-bold uppercase tracking-wider text-gray-400">
+                <div className="flex flex-wrap justify-center gap-5 text-xs font-bold uppercase tracking-widest text-gray-400">
                   <button onClick={() => setPage('home')} className="hover:text-amber-400 transition">Home</button>
-                  <button onClick={() => setPage('shopping')} className="hover:text-amber-400 transition">Shop</button>
+                  <button onClick={() => setPage('shopping')} className="hover:text-amber-400 transition">Shopping</button>
                   <button onClick={() => setPage('about')} className="hover:text-amber-400 transition">About</button>
                   <button onClick={() => setPage('contact')} className="hover:text-amber-400 transition">Contact</button>
-                  <button onClick={() => setPage('download')} className="hover:text-amber-400 transition">Downloads</button>
                 </div>
 
-                <div className="flex gap-4 text-amber-400">
-                  <a href={settings.facebook || "#"} target="_blank" className="hover:text-white hover:scale-110 transition"><SocialIcons.Facebook /></a>
-                  <a href={settings.instagram || "#"} target="_blank" className="hover:text-white hover:scale-110 transition"><SocialIcons.Instagram /></a>
-                  <a href={settings.whatsapp ? `https://wa.me/${settings.whatsapp.replace(/\D/g, '')}` : "#"} target="_blank" className="hover:text-white hover:scale-110 transition"><SocialIcons.WhatsApp /></a>
-                  <a href={settings.youtube || "#"} target="_blank" className="hover:text-white hover:scale-110 transition"><SocialIcons.YouTube /></a>
+                <div className="flex gap-4 text-amber-500">
+                  {settings.facebook && <a href={settings.facebook} target="_blank" className="hover:scale-110 hover:text-white transition"><SocialIcons.Facebook /></a>}
+                  {settings.instagram && <a href={settings.instagram} target="_blank" className="hover:scale-110 hover:text-white transition"><SocialIcons.Instagram /></a>}
+                  {settings.whatsapp && <a href={`https://wa.me/${(settings.whatsapp||'').replace(/\D/g, '')}`} target="_blank" className="hover:scale-110 hover:text-white transition"><SocialIcons.WhatsApp /></a>}
+                  {settings.youtube && <a href={settings.youtube} target="_blank" className="hover:scale-110 hover:text-white transition"><SocialIcons.YouTube /></a>}
+                  {settings.tiktok && <a href={settings.tiktok} target="_blank" className="hover:scale-110 hover:text-white transition"><SocialIcons.TikTok /></a>}
                 </div>
               </div>
 
-              <div className="max-w-7xl mx-auto text-center text-[10px] text-gray-600 border-t border-zinc-900 pt-6 font-mono tracking-widest">
-                <p>&copy; 2026 SOLUTION HUB. ALL RIGHTS RESERVED.</p>
+              <div className="max-w-7xl mx-auto text-center text-[10px] text-gray-600 border-t border-zinc-900 pt-5 font-bold tracking-widest uppercase">
+                <p>&copy; {new Date().getFullYear()} SOLUTION HUB. ALL RIGHTS RESERVED.</p>
               </div>
             </footer>
           </div>
         );
       }
 
-      // Render the App
-      const rootElement = document.getElementById('root');
-      const root = ReactDOM.createRoot(rootElement);
-      root.render(<App />);
+      ReactDOM.createRoot(document.getElementById('root')).render(<App />);
     </script>
 </body>
 </html>
