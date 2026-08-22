@@ -18,109 +18,92 @@
         background-size: 100% 100%, 30px 30px, 30px 30px;
       }
       .glow-amber {
-        box-shadow: 0 0 25px rgba(245, 158, 11, 0.25);
+        box-shadow: 0 0 25px rgba(245, 158, 11, 0.2);
       }
-      @keyframes lightningFlash {
-        0%, 100% { opacity: 0.9; filter: drop-shadow(0 0 6px #f59e0b); transform: scale(1); }
-        50% { opacity: 0.4; filter: drop-shadow(0 0 16px #ffffff); transform: scale(1.05); }
+      @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
       }
-      .electric-icon {
-        animation: lightningFlash 0.6s infinite alternate ease-in-out;
-      }
-      @keyframes shimmer {
-        0% { transform: translateX(-100%); }
-        100% { transform: translateX(200%); }
-      }
-      .animate-shimmer {
-        animation: shimmer 1.8s infinite linear;
+      .animate-blink {
+        animation: blink 1s infinite;
       }
       .no-scrollbar::-webkit-scrollbar { display: none; }
       .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="techy-bg text-gray-100 font-sans min-h-screen flex flex-col justify-between selection:bg-amber-500 selection:text-black">
-    <div id="root">
-        <div id="preloader" class="fixed inset-0 z-50 bg-[#030712] flex items-center justify-center p-4 transition-opacity duration-700">
-            <div class="text-center space-y-6 p-6 sm:p-10 bg-zinc-950/95 border border-amber-500/40 rounded-3xl glow-amber max-w-sm w-full shadow-2xl relative overflow-hidden backdrop-blur-md">
-                <div class="flex flex-col items-center justify-center space-y-3">
-                    <div class="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center electric-icon shadow-[0_0_20px_rgba(245,158,11,0.4)]">
-                        <svg class="w-8 h-8 text-amber-400 fill-current" viewBox="0 0 24 24">
-                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-                        </svg>
-                    </div>
-                    <p class="text-xs text-amber-400 font-mono tracking-widest uppercase font-bold">INITIALIZING SYSTEM...</p>
-                </div>
-                <div class="space-y-3 pt-2">
-                    <div class="flex justify-between items-center text-xs font-mono text-gray-300 font-bold tracking-wider">
-                        <span class="animate-pulse text-amber-400">LOADING MODULES</span>
-                        <span id="load-percentage" class="text-white">0%</span>
-                    </div>
-                    <div class="w-full h-2.5 bg-zinc-900 rounded-full overflow-hidden p-0.5 relative shadow-inner">
-                        <div id="load-progress-bar" class="h-full bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-400 rounded-full transition-all duration-100 relative overflow-hidden shadow-[0_0_12px_#f59e0b]" style="width: 0%;">
-                            <div class="absolute inset-0 bg-white/30 animate-shimmer w-1/2"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div id="app-root"></div>
-    </div>
-
-    <script>
-      let currentProgress = 0;
-      const progressInterval = setInterval(() => {
-        currentProgress += Math.floor(Math.random() * 12) + 8;
-        if (currentProgress > 100) currentProgress = 100;
-        const bar = document.getElementById('load-progress-bar');
-        const text = document.getElementById('load-percentage');
-        if(bar) bar.style.width = currentProgress + '%';
-        if(text) text.innerText = currentProgress + '%';
-        if (currentProgress === 100) {
-          clearInterval(progressInterval);
-          setTimeout(() => {
-            const preloader = document.getElementById('preloader');
-            if(preloader) {
-              preloader.style.opacity = '0';
-              setTimeout(() => preloader.style.display = 'none', 600);
-            }
-          }, 200);
-        }
-      }, 50);
-    </script>
+    <div id="root"></div>
 
     <script type="text/babel">
       const { useState, useEffect } = React;
+
       const API_URL = "https://script.google.com/macros/s/AKfycbyxc0GtwCU_Gx2scVdTM6I38vml0Oza__Zftg13jDg5D_DiQp1rf2y2e3jxocxuKx2ZUQ/exec";
 
+      const fallbackProducts = [
+        { id: '1', name: 'Wireless Bluetooth Earbuds', category: 'Electronic', price: 'Rs. 1,200', image: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df', description: 'High bass wireless earbuds with 24hr battery backup.' },
+        { id: '2', name: 'Fast 65W GaN Charger', category: 'Accessory', price: 'Rs. 1,800', image: 'https://images.unsplash.com/photo-1583863788434-e58a36330cf0', description: 'Ultra fast multi-port charger for mobiles & laptops.' },
+        { id: '3', name: 'Tempered Glass Screen Protector', category: 'Accessory', price: 'Rs. 350', image: 'https://images.unsplash.com/photo-1585060544812-6b45742d762f', description: '9H hardness edge-to-edge protection glass.' },
+        { id: '4', name: 'RGB Gaming Headset', category: 'Electronic', price: 'Rs. 2,500', image: 'https://images.unsplash.com/photo-1546435770-a3e426bf472b', description: 'Surround sound gaming headset with mic and LED lighting.' }
+      ];
+
+      const fallbackDownloads = [
+        { id: 'd1', name: 'Solution Hub Mobile Flashing Tool v2.4', category: 'Utility Tool', size: '45 MB', image: 'https://images.unsplash.com/photo-1555680202-c86f0e12f086', link: 'https://drive.google.com', desc: 'Essential diagnostic and flashing software package.' }
+      ];
+
+      const fallbackTeam = [
+        { id: 't1', name: 'Mr. Rajesh Sharma', role: 'Founder & Owner', image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb', desc: 'Expert in mobile repair and store management.' }
+      ];
+
+      // Real Brand SVG Icons
       const SocialIcons = {
-        Facebook: () => (<svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M22.675 0h-21.35c-.732 0-1.325.593-1.325 1.325v21.351c0 .731.593 1.324 1.325 1.324h11.495v-9.294h-3.128v-3.622h3.128v-2.671c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.325v-21.35c0-.732-.593-1.325-1.325-1.325z"/></svg>),
-        Instagram: () => (<svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>),
-        YouTube: () => (<svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>),
-        TikTok: () => (<svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.242V2h-3.445v13.672a2.896 2.896 0 0 1-5.201 1.743l-.002-.001.002.001a2.895 2.895 0 0 1 3.193-4.512v-3.529a6.332 6.332 0 0 0-5.184 6.223 6.355 6.355 0 0 0 6.355 6.355 6.355 6.355 0 0 0 6.355-6.355V8.657a8.21 8.21 0 0 0 4.796 1.506v-3.47a4.79 4.79 0 0 1-1.06-.007z"/></svg>),
-        WhatsApp: () => (<svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.198-.198.347-.764.966-.937 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg></noscript>)
+        Facebook: () => (
+          <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+            <path d="M22.675 0h-21.35c-.732 0-1.325.593-1.325 1.325v21.351c0 .731.593 1.324 1.325 1.324h11.495v-9.294h-3.128v-3.622h3.128v-2.671c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.325v-21.35c0-.732-.593-1.325-1.325-1.325z"/>
+          </svg>
+        ),
+        Instagram: () => (
+          <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+          </svg>
+        ),
+        YouTube: () => (
+          <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+          </svg>
+        ),
+        TikTok: () => (
+          <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+            <path d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.242V2h-3.445v13.672a2.896 2.896 0 0 1-5.201 1.743l-.002-.001.002.001a2.895 2.895 0 0 1 3.193-4.512v-3.529a6.332 6.332 0 0 0-5.184 6.223 6.355 6.355 0 0 0 6.355 6.355 6.355 6.355 0 0 0 6.355-6.355V8.657a8.21 8.21 0 0 0 4.796 1.506v-3.47a4.79 4.79 0 0 1-1.06-.007z"/>
+          </svg>
+        ),
+        WhatsApp: () => (
+          <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.198-.198.347-.764.966-.937 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+          </svg>
+        )
       };
 
       function App() {
+        const [loading, setLoading] = useState(true);
+        const [loadProgress, setLoadProgress] = useState(15);
         const [page, setPage] = useState('home');
         const [currentUser, setCurrentUser] = useState(null);
         const [showLoginModal, setShowLoginModal] = useState(false);
         const [loginCreds, setLoginCreds] = useState({ user: '', pass: '' });
 
-        const [products, setProducts] = useState([]);
-        const [downloads, setDownloads] = useState([]);
-        const [team, setTeam] = useState([]);
+        const [products, setProducts] = useState(fallbackProducts);
+        const [downloads, setDownloads] = useState(fallbackDownloads);
+        const [team, setTeam] = useState(fallbackTeam);
         const [settings, setSettings] = useState({
           whatsapp: '+9779769726479',
           address: 'Jhapa Gaupalika - 5, Purano Sharanamati, Jhapa',
           email: 'hamrosolutionhub@gmail.com',
           mapLink: 'https://maps.app.goo.gl/rufnFrQQNA2mcvGJA',
-          logo: '',
-          facebook: 'https://facebook.com',
-          instagram: 'https://instagram.com',
-          youtube: 'https://youtube.com',
-          tiktok: 'https://tiktok.com'
+          logo: ''
         });
-        const [users, setUsers] = useState([]);
+        const [users, setUsers] = useState([
+          { id: 'admin_1', username: 'admin', password: 'admin123', name: 'Solution Hub Admin' }
+        ]);
 
         const [filter, setFilter] = useState('All');
         const [searchQuery, setSearchQuery] = useState('');
@@ -133,31 +116,31 @@
         const [editingTeam, setEditingTeam] = useState(null);
 
         useEffect(() => {
-          fetchAllData();
-        }, []);
+          let progress = 15;
+          const interval = setInterval(() => {
+            progress += 25;
+            if (progress > 100) progress = 100;
+            setLoadProgress(progress);
+          }, 200);
 
-        const fetchAllData = () => {
           fetch(API_URL + "?action=getData")
             .then(res => res.json())
             .then(data => {
-              if (data.products) setProducts(data.products);
-              if (data.downloads) setDownloads(data.downloads);
-              if (data.team) setTeam(data.team);
+              if (data.products && data.products.length > 0) setProducts(data.products);
+              if (data.downloads && data.downloads.length > 0) setDownloads(data.downloads);
+              if (data.team && data.team.length > 0) setTeam(data.team);
               if (data.settings) setSettings(data.settings);
-              if (data.users) setUsers(data.users);
+              if (data.users && data.users.length > 0) setUsers(data.users);
+              clearInterval(interval);
+              setLoadProgress(100);
+              setTimeout(() => setLoading(false), 300);
             })
-            .catch(() => {});
-        };
-
-        const handleImageUpload = (e, callback) => {
-          const file = e.target.files[0];
-          if (!file) return;
-          const reader = new FileReader();
-          reader.onloadend = () => {
-            callback(reader.result);
-          };
-          reader.readAsDataURL(file);
-        };
+            .catch(() => {
+              clearInterval(interval);
+              setLoadProgress(100);
+              setTimeout(() => setLoading(false), 300);
+            });
+        }, []);
 
         const handleLogin = (e) => {
           e.preventDefault();
@@ -165,9 +148,8 @@
           if (matched) {
             setCurrentUser(matched);
             setShowLoginModal(false);
-            alert("ADMIN LOGIN SUCCESSFUL!");
           } else {
-            alert("INVALID USER ID OR PASSWORD!");
+            alert("Invalid User ID or Password!");
           }
         };
 
@@ -223,6 +205,19 @@
           fetchAllData();
         };
 
+        const fetchAllData = () => {
+          fetch(API_URL + "?action=getData")
+            .then(res => res.json())
+            .then(data => {
+              if (data.products && data.products.length > 0) setProducts(data.products);
+              if (data.downloads && data.downloads.length > 0) setDownloads(data.downloads);
+              if (data.team && data.team.length > 0) setTeam(data.team);
+              if (data.settings) setSettings(data.settings);
+              if (data.users && data.users.length > 0) setUsers(data.users);
+            })
+            .catch(() => {});
+        };
+
         const filteredProducts = products.filter(p => {
           const matchesCat = filter === 'All' || p.category === filter;
           const matchesSearch = p.name && p.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -234,6 +229,31 @@
           const matchesSearch = d.name && d.name.toLowerCase().includes(downloadSearch.toLowerCase());
           return matchesCat && matchesSearch;
         });
+
+        if (loading) {
+          return (
+            <div className="flex items-center justify-center min-h-screen bg-black/95 text-white p-4">
+              <div className="text-center space-y-6 p-8 bg-zinc-950/95 border border-amber-500/40 rounded-3xl glow-amber max-w-sm w-full font-mono shadow-2xl relative overflow-hidden">
+                <div className="w-16 h-16 bg-gradient-to-tr from-amber-600 to-amber-400 text-black rounded-2xl flex items-center justify-center mx-auto font-black text-2xl shadow-lg shadow-amber-500/30 animate-pulse">
+                  ⚡
+                </div>
+                <div className="space-y-2">
+                  <h2 className="text-sm font-black tracking-widest text-white uppercase">SOLUTION HUB</h2>
+                  <p className="text-[11px] text-amber-400 font-semibold tracking-wider">SYSTEM INITIALIZING...</p>
+                </div>
+                <div className="space-y-2">
+                  <div className="w-full h-2 bg-zinc-900 rounded-full overflow-hidden relative border border-amber-500/30">
+                    <div className="h-full bg-gradient-to-r from-amber-600 to-yellow-400 transition-all duration-300" style={{ width: `${loadProgress}%` }}></div>
+                  </div>
+                  <div className="flex justify-between text-[10px] text-gray-400 font-mono">
+                    <span>CONNECTING CLOUD...</span>
+                    <span className="text-amber-400 font-bold">{loadProgress}%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        }
 
         return (
           <div className="min-h-screen flex flex-col justify-between techy-bg text-gray-100">
@@ -318,6 +338,26 @@
                         <h4 className="font-extrabold text-base text-white uppercase">TECH SUPPORT</h4>
                         <p className="text-xs text-gray-400 leading-relaxed">OS installation, virus removal, network troubleshooting & tech consulting.</p>
                       </div>
+                    </div>
+                  </section>
+
+                  <section className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-zinc-900">
+                    <div className="bg-zinc-900/80 p-8 rounded-3xl border border-zinc-800 space-y-4 flex flex-col justify-between">
+                      <div className="space-y-3">
+                        <span className="text-xs text-amber-400 font-bold uppercase tracking-wider">ℹ️ ABOUT SOLUTION HUB</span>
+                        <h3 className="text-xl font-black text-white uppercase">RELIABLE TECH & STUDIO EXPERTS</h3>
+                        <p className="text-xs text-gray-300 leading-relaxed">Located at {settings.address}, we bring state-of-the-art technological solutions and studio photography under one roof with uncompromised quality.</p>
+                      </div>
+                      <button onClick={() => setPage('about')} className="self-start text-xs font-black text-amber-400 hover:underline uppercase tracking-wider">READ MORE ABOUT US →</button>
+                    </div>
+
+                    <div className="bg-zinc-900/80 p-8 rounded-3xl border border-zinc-800 space-y-4 flex flex-col justify-between">
+                      <div className="space-y-3">
+                        <span className="text-xs text-amber-400 font-bold uppercase tracking-wider">📞 CONTACT & LOCATION</span>
+                        <h3 className="text-xl font-black text-white uppercase">VISIT OUR STORE OR CHAT WITH US</h3>
+                        <p className="text-xs text-gray-300 leading-relaxed">Have questions about mobile repairs or electronic items? Reach out via WhatsApp instantly at {settings.whatsapp}.</p>
+                      </div>
+                      <button onClick={() => setPage('contact')} className="self-start text-xs font-black text-amber-400 hover:underline uppercase tracking-wider">OPEN CONTACT & MAP →</button>
                     </div>
                   </section>
                 </div>
@@ -453,11 +493,21 @@
                       <div className="space-y-2">
                         <h3 className="font-bold text-sm text-amber-400 uppercase">SOCIAL MEDIA CHANNELS</h3>
                         <div className="flex gap-3 pt-1">
-                          <a href={settings.facebook} target="_blank" className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow hover:opacity-90 transition" title="Facebook"><SocialIcons.Facebook /></a>
-                          <a href={settings.instagram} target="_blank" className="w-10 h-10 rounded-xl bg-pink-600 text-white flex items-center justify-center shadow hover:opacity-90 transition" title="Instagram"><SocialIcons.Instagram /></a>
-                          <a href={`https://wa.me/${(settings.whatsapp||'').replace(/\D/g,'')}`} target="_blank" className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow hover:opacity-90 transition" title="WhatsApp"><SocialIcons.WhatsApp /></a>
-                          <a href={settings.youtube} target="_blank" className="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center shadow hover:opacity-90 transition" title="YouTube"><SocialIcons.YouTube /></a>
-                          <a href={settings.tiktok} target="_blank" className="w-10 h-10 rounded-xl bg-black border border-zinc-700 text-white flex items-center justify-center shadow hover:opacity-90 transition" title="TikTok"><SocialIcons.TikTok /></a>
+                          <a href="https://facebook.com" target="_blank" className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow hover:opacity-90 transition" title="Facebook">
+                            <SocialIcons.Facebook />
+                          </a>
+                          <a href="https://instagram.com" target="_blank" className="w-10 h-10 rounded-xl bg-pink-600 text-white flex items-center justify-center shadow hover:opacity-90 transition" title="Instagram">
+                            <SocialIcons.Instagram />
+                          </a>
+                          <a href="https://whatsapp.com" target="_blank" className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow hover:opacity-90 transition" title="WhatsApp">
+                            <SocialIcons.WhatsApp />
+                          </a>
+                          <a href="https://youtube.com" target="_blank" className="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center shadow hover:opacity-90 transition" title="YouTube">
+                            <SocialIcons.YouTube />
+                          </a>
+                          <a href="https://tiktok.com" target="_blank" className="w-10 h-10 rounded-xl bg-black border border-zinc-700 text-white flex items-center justify-center shadow hover:opacity-90 transition" title="TikTok">
+                            <SocialIcons.TikTok />
+                          </a>
                         </div>
                       </div>
 
@@ -491,24 +541,8 @@
                             <input type="text" value={settings.mapLink} onChange={e=>setSettings({...settings, mapLink:e.target.value})} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded text-white" />
                           </div>
                           <div>
-                            <label className="block text-[10px] text-gray-400 mb-1">Facebook URL</label>
-                            <input type="text" value={settings.facebook} onChange={e=>setSettings({...settings, facebook:e.target.value})} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded text-white" />
-                          </div>
-                          <div>
-                            <label className="block text-[10px] text-gray-400 mb-1">Instagram URL</label>
-                            <input type="text" value={settings.instagram} onChange={e=>setSettings({...settings, instagram:e.target.value})} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded text-white" />
-                          </div>
-                          <div>
-                            <label className="block text-[10px] text-gray-400 mb-1">YouTube URL</label>
-                            <input type="text" value={settings.youtube} onChange={e=>setSettings({...settings, youtube:e.target.value})} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded text-white" />
-                          </div>
-                          <div>
-                            <label className="block text-[10px] text-gray-400 mb-1">TikTok URL</label>
-                            <input type="text" value={settings.tiktok} onChange={e=>setSettings({...settings, tiktok:e.target.value})} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded text-white" />
-                          </div>
-                          <div>
-                            <label className="block text-[10px] text-gray-400 mb-1">Shop Logo</label>
-                            <input type="file" accept="image/*" onChange={e => handleImageUpload(e, (base64) => setSettings({...settings, logo: base64}))} className="w-full text-xs text-gray-400" />
+                            <label className="block text-[10px] text-gray-400 mb-1">Logo Image URL</label>
+                            <input type="text" value={settings.logo} onChange={e=>setSettings({...settings, logo:e.target.value})} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded text-white" />
                           </div>
                           <button type="submit" className="w-full bg-amber-500 text-black py-2 rounded font-bold uppercase">SAVE SETTINGS</button>
                         </form>
@@ -546,7 +580,7 @@
                 <div className="max-w-7xl mx-auto px-4 py-12 space-y-6">
                   <div className="text-center space-y-2">
                     <h2 className="text-2xl sm:text-3xl font-black text-white uppercase">SOFTWARE & UTILITY DOWNLOADS</h2>
-                    <p className="text-xs sm:text-sm text-gray-400">Download recommended repair utility tools and catalogs directly.</p>
+                    <p className="text-xs sm:text-sm text-gray-400">Download recommended repair utility tools and catalogs directly via Google Drive.</p>
                   </div>
 
                   {currentUser && (
@@ -626,59 +660,11 @@
                   <h3 className="font-black text-base text-white uppercase">EDIT / ADD PRODUCT</h3>
                   <form onSubmit={handleSaveProduct} className="space-y-3 text-xs">
                     <input type="text" placeholder="Name" required value={editingProduct.name} onChange={e=>setEditingProduct({...editingProduct, name:e.target.value})} className="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white" />
-                    <input type="text" placeholder="Category (or type new)" required value={editingProduct.category} onChange={e=>setEditingProduct({...editingProduct, category:e.target.value})} className="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white" />
+                    <input type="text" placeholder="Category" required value={editingProduct.category} onChange={e=>setEditingProduct({...editingProduct, category:e.target.value})} className="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white" />
                     <input type="text" placeholder="Price" required value={editingProduct.price} onChange={e=>setEditingProduct({...editingProduct, price:e.target.value})} className="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white" />
-                    <div>
-                      <label className="block text-[10px] text-gray-400 mb-1">Upload Image File</label>
-                      <input type="file" accept="image/*" onChange={e => handleImageUpload(e, (base64) => setEditingProduct({...editingProduct, image: base64}))} className="w-full text-xs text-gray-400" />
-                    </div>
-                    <input type="text" placeholder="Or Image URL" value={editingProduct.image} onChange={e=>setEditingProduct({...editingProduct, image:e.target.value})} className="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white" />
+                    <input type="text" placeholder="Main Image URL" required value={editingProduct.image} onChange={e=>setEditingProduct({...editingProduct, image:e.target.value})} className="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white" />
                     <textarea placeholder="Description" value={editingProduct.description} onChange={e=>setEditingProduct({...editingProduct, description:e.target.value})} className="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white"></textarea>
                     <button type="submit" className="w-full bg-amber-500 text-black py-3 rounded-xl font-black uppercase">SAVE PRODUCT</button>
-                  </form>
-                </div>
-              </div>
-            )}
-
-            {/* EDIT DOWNLOAD MODAL */}
-            {editingDownload && (
-              <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-50">
-                <div className="bg-zinc-900 border border-zinc-800 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
-                  <button onClick={() => setEditingDownload(null)} className="absolute top-4 right-4 text-gray-400 hover:text-white font-bold">✕</button>
-                  <h3 className="font-black text-base text-white uppercase">EDIT / ADD DOWNLOAD</h3>
-                  <form onSubmit={handleSaveDownload} className="space-y-3 text-xs">
-                    <input type="text" placeholder="Name" required value={editingDownload.name} onChange={e=>setEditingDownload({...editingDownload, name:e.target.value})} className="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white" />
-                    <input type="text" placeholder="Category" required value={editingDownload.category} onChange={e=>setEditingDownload({...editingDownload, category:e.target.value})} className="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white" />
-                    <input type="text" placeholder="Size (e.g. 45 MB)" required value={editingDownload.size} onChange={e=>setEditingDownload({...editingDownload, size:e.target.value})} className="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white" />
-                    <input type="text" placeholder="Google Drive Link" required value={editingDownload.link} onChange={e=>setEditingDownload({...editingDownload, link:e.target.value})} className="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white" />
-                    <div>
-                      <label className="block text-[10px] text-gray-400 mb-1">Upload Cover Image</label>
-                      <input type="file" accept="image/*" onChange={e => handleImageUpload(e, (base64) => setEditingDownload({...editingDownload, image: base64}))} className="w-full text-xs text-gray-400" />
-                    </div>
-                    <input type="text" placeholder="Or Image URL" value={editingDownload.image} onChange={e=>setEditingDownload({...editingDownload, image:e.target.value})} className="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white" />
-                    <textarea placeholder="Description" value={editingDownload.desc} onChange={e=>setEditingDownload({...editingDownload, desc:e.target.value})} className="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white"></textarea>
-                    <button type="submit" className="w-full bg-amber-500 text-black py-3 rounded-xl font-black uppercase">SAVE DOWNLOAD</button>
-                  </form>
-                </div>
-              </div>
-            )}
-
-            {/* EDIT TEAM MODAL */}
-            {editingTeam && (
-              <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-50">
-                <div className="bg-zinc-900 border border-zinc-800 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
-                  <button onClick={() => setEditingTeam(null)} className="absolute top-4 right-4 text-gray-400 hover:text-white font-bold">✕</button>
-                  <h3 className="font-black text-base text-white uppercase">EDIT / ADD TEAM MEMBER</h3>
-                  <form onSubmit={handleSaveTeam} className="space-y-3 text-xs">
-                    <input type="text" placeholder="Name" required value={editingTeam.name} onChange={e=>setEditingTeam({...editingTeam, name:e.target.value})} className="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white" />
-                    <input type="text" placeholder="Role (e.g. Owner)" required value={editingTeam.role} onChange={e=>setEditingTeam({...editingTeam, role:e.target.value})} className="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white" />
-                    <div>
-                      <label className="block text-[10px] text-gray-400 mb-1">Upload Photo</label>
-                      <input type="file" accept="image/*" onChange={e => handleImageUpload(e, (base64) => setEditingTeam({...editingTeam, image: base64}))} className="w-full text-xs text-gray-400" />
-                    </div>
-                    <input type="text" placeholder="Or Image URL" value={editingTeam.image} onChange={e=>setEditingTeam({...editingTeam, image:e.target.value})} className="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white" />
-                    <textarea placeholder="Description" value={editingTeam.desc} onChange={e=>setEditingTeam({...editingTeam, desc:e.target.value})} className="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white"></textarea>
-                    <button type="submit" className="w-full bg-amber-500 text-black py-3 rounded-xl font-black uppercase">SAVE MEMBER</button>
                   </form>
                 </div>
               </div>
@@ -690,7 +676,17 @@
                 <div className="bg-zinc-900 border border-zinc-800 rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl relative">
                   <button onClick={() => setSelectedProduct(null)} className="absolute top-4 right-4 w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-gray-300 hover:text-white font-bold">✕</button>
                   <h3 className="font-black text-lg text-white pr-6">{selectedProduct.name}</h3>
+                  
                   <img src={selectedProduct.image} alt={selectedProduct.name} className="w-full h-52 object-cover rounded-2xl bg-zinc-950 border border-zinc-800" />
+                  
+                  {selectedProduct.gallery && selectedProduct.gallery.length > 0 && (
+                    <div className="grid grid-cols-3 gap-2">
+                      {selectedProduct.gallery.map((imgUrl, idx) => (
+                        <img key={idx} src={imgUrl} alt="Gallery" className="w-full h-20 object-cover rounded-xl border border-zinc-800 cursor-pointer hover:opacity-80 transition" onClick={() => setSelectedProduct({...selectedProduct, image: imgUrl})} />
+                      ))}
+                    </div>
+                  )}
+
                   <p className="text-xs text-gray-300 leading-relaxed">{selectedProduct.description}</p>
                   <div className="flex justify-between items-center pt-2">
                     <span className="text-base font-black text-amber-400">{selectedProduct.price}</span>
@@ -706,29 +702,32 @@
               </div>
             )}
 
-            {/* Footer */}
+            {/* Footer with Menu and Copyright */}
             <footer className="bg-black text-white py-8 px-4 mt-16 border-t border-zinc-800/80 space-y-6">
               <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
                 <div className="flex items-center gap-3 cursor-pointer" onClick={() => setPage('home')}>
                   <div className="w-9 h-9 rounded-xl bg-amber-500 text-black flex items-center justify-center font-black text-sm">SH</div>
                   <span className="font-black text-sm tracking-widest uppercase">SOLUTION HUB</span>
                 </div>
+                
+                {/* Footer Menu */}
                 <div className="flex flex-wrap justify-center gap-4 text-xs font-bold uppercase tracking-wider text-gray-400">
-                  <button onClick={() => setPage('home')} className="hover:text-amber-400 transition">HOME</button>
-                  <button onClick={() => setPage('shopping')} className="hover:text-amber-400 transition">SHOPPING</button>
-                  <button onClick={() => setPage('about')} className="hover:text-amber-400 transition">ABOUT US</button>
-                  <button onClick={() => setPage('contact')} className="hover:text-amber-400 transition">CONTACT US</button>
-                  <button onClick={() => setPage('download')} className="hover:text-amber-400 transition">DOWNLOAD</button>
+                  <button onClick={() => setPage('home')} className="hover:text-amber-400 transition">Home</button>
+                  <button onClick={() => setPage('shopping')} className="hover:text-amber-400 transition">Shopping</button>
+                  <button onClick={() => setPage('about')} className="hover:text-amber-400 transition">About Us</button>
+                  <button onClick={() => setPage('contact')} className="hover:text-amber-400 transition">Contact Us</button>
+                  <button onClick={() => setPage('download')} className="hover:text-amber-400 transition">Download</button>
                 </div>
+
                 <div className="flex gap-3 text-amber-400">
-                  <a href={settings.facebook} target="_blank" className="hover:scale-110 transition"><SocialIcons.Facebook /></a>
-                  <a href={settings.instagram} target="_blank" className="hover:scale-110 transition"><SocialIcons.Instagram /></a>
-                  <a href={`https://wa.me/${(settings.whatsapp||'').replace(/\D/g,'')}`} target="_blank" className="hover:scale-110 transition"><SocialIcons.WhatsApp /></a>
-                  <a href={settings.youtube} target="_blank" className="hover:scale-110 transition"><SocialIcons.YouTube /></a>
-                  <a href={settings.tiktok} target="_blank" className="hover:scale-110 transition"><SocialIcons.TikTok /></a>
+                  <a href="https://facebook.com" target="_blank" className="hover:scale-110 transition"><SocialIcons.Facebook /></a>
+                  <a href="https://instagram.com" target="_blank" className="hover:scale-110 transition"><SocialIcons.Instagram /></a>
+                  <a href="https://whatsapp.com" target="_blank" className="hover:scale-110 transition"><SocialIcons.WhatsApp /></a>
+                  <a href="https://youtube.com" target="_blank" className="hover:scale-110 transition"><SocialIcons.YouTube /></a>
                 </div>
               </div>
-              <div className="max-w-7xl mx-auto text-center text-[11px] text-gray-500 border-t border-zinc-900 pt-4 uppercase">
+
+              <div className="max-w-7xl mx-auto text-center text-[11px] text-gray-500 border-t border-zinc-900 pt-4">
                 <p>&copy; 2026 SOLUTION HUB. ALL RIGHTS RESERVED.</p>
               </div>
             </footer>
