@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOLUTION HUB | ELECTRONIC, MOBILE REPAIR, PHOTO STUDIO & TECH SUPPORT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+      /* Techy Circuit Background Pattern & Glows */
+      .techy-bg {
+        background-color: #030712;
+        background-image: 
+          radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.05) 0%, transparent 60%),
+          linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+        background-size: 100% 100%, 30px 30px, 30px 30px;
+      }
+      .glow-amber {
+        box-shadow: 0 0 25px rgba(245, 158, 11, 0.25);
+      }
+      @keyframes lightningFlash {
+        0%, 100% { opacity: 0.9; filter: drop-shadow(0 0 6px #f59e0b); transform: scale(1); }
+        50% { opacity: 0.4; filter: drop-shadow(0 0 16px #ffffff); transform: scale(1.05); }
+      }
+      .electric-icon {
+        animation: lightningFlash 0.6s infinite alternate ease-in-out;
+      }
+      @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(200%); }
+      }
+      .animate-shimmer {
+        animation: shimmer 1.8s infinite linear;
+      }
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    </style>
+</head>
+<body class="techy-bg text-gray-100 font-sans min-h-screen flex flex-col justify-between selection:bg-amber-500 selection:text-black">
+    <div id="root">
+        <!-- Preloader with Electric Lightning Icon & Dynamic Loading Percentage Bar -->
+        <div id="preloader" class="fixed inset-0 z-50 bg-[#030712] flex items-center justify-center p-4 transition-opacity duration-700">
+            <div class="text-center space-y-6 p-6 sm:p-10 bg-zinc-950/95 border border-amber-500/40 rounded-3xl glow-amber max-w-sm w-full shadow-2xl relative overflow-hidden backdrop-blur-md">
+                
+                <!-- Electric Current Icon with Lightning Effect -->
+                <div class="flex flex-col items-center justify-center space-y-3">
+                    <div class="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center electric-icon shadow-[0_0_20px_rgba(245,158,11,0.4)]">
+                        <svg class="w-8 h-8 text-amber-400 fill-current" viewBox="0 0 24 24">
+                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                        </svg>
+                    </div>
+                    <p class="text-xs text-amber-400 font-mono tracking-widest uppercase font-bold">
+                        INITIALIZING SYSTEM...
+                    </p>
+                </div>
+
+                <!-- Dynamic Loading Percentage Bar -->
+                <div class="space-y-3 pt-2">
+                    <div class="flex justify-between items-center text-xs font-mono text-gray-300 font-bold tracking-wider">
+                        <span class="animate-pulse text-amber-400">LOADING MODULES</span>
+                        <span id="load-percentage" class="text-white">0%</span>
+                    </div>
+
+                    <div class="w-full h-2.5 bg-zinc-900 rounded-full overflow-hidden p-0.5 relative shadow-inner">
+                        <div id="load-progress-bar" class="h-full bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-400 rounded-full transition-all duration-100 relative overflow-hidden shadow-[0_0_12px_#f59e0b]" style="width: 0%;">
+                            <div class="absolute inset-0 bg-white/30 animate-shimmer w-1/2"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div id="app-root"></div>
+    </div>
+
+    <script>
+      let currentProgress = 0;
+      const progressInterval = setInterval(() => {
+        currentProgress += Math.floor(Math.random() * 8) + 5;
+        if (currentProgress > 100) currentProgress = 100;
+        
+        const bar = document.getElementById('load-progress-bar');
+        const text = document.getElementById('load-percentage');
+        if(bar) bar.style.width = currentProgress + '%';
+        if(text) text.innerText = currentProgress + '%';
+
+        if (currentProgress === 100) {
+          clearInterval(progressInterval);
+          setTimeout(() => {
+            const preloader = document.getElementById('preloader');
+            if(preloader) {
+              preloader.style.opacity = '0';
+              setTimeout(() => preloader.style.display = 'none', 600);
+            }
+          }, 300);
+        }
+      }, 70);
+    </script>
+
+    <script type="text/babel">
+      const { useState, useEffect } = React;
+
+      const API_URL = "https://script.google.com/macros/s/AKfycbxUJMNJks4ppVTDgc3JTTbj1DCvPDfc9CVySsrodNMDYYInDUZQ2SxelqsiqlNsb1NhIA/exec";
+
+      // Real Brand SVG Icons
+      const SocialIcons = {
+        Facebook: () => (
+          <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+            <path d="M22.675 0h-21.35c-.732 0-1.325.593-1.325 1.325v21.351c0 .731.593 1.324 1.325 1.324h11.495v-9.294h-3.128v-3.622h3.128v-2.671c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.325v-21.35c0-.732-.593-1.325-1.325-1.325z"/>
+          </svg>
+        ),
+        Instagram: () => (
+          <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+          </svg>
+        ),
+        YouTube: () => (
+          <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+          </svg>
+        ),
+        TikTok: () => (
+          <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+            <path d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.242V2h-3.445v13.672a2.896 2.896 0 0 1-5.201 1.743l-.002-.001.002.001a2.895 2.895 0 0 1 3.193-4.512v-3.529a6.332 6.332 0 0 0-5.184 6.223 6.355 6.355 0 0 0 6.355 6.355 6.355 6.355 0 0 0 6.355-6.355V8.657a8.21 8.21 0 0 0 4.796 1.506v-3.47a4.79 4.79 0 0 1-1.06-.007z"/>
+          </svg>
+        ),
+        WhatsApp: () => (
+          <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.198-.198.347-.764.966-.937 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+          </svg>
+        )
+      };
+
+      function App() {
+        const [page, setPage] = useState('home');
+        const [currentUser, setCurrentUser] = useState(null);
+        const [showLoginModal, setShowLoginModal] = useState(false);
+        const [loginCreds, setLoginCreds] = useState({ user: '', pass: '' });
+
+        const [products, setProducts] = useState([]);
+        const [downloads, setDownloads] = useState([]);
+        const [team, setTeam] = useState([]);
+        const [settings, setSettings] = useState({
+          whatsapp: '+9779769726479',
+          address: 'Jhapa Gaupalika - 5, Purano Sharanamati, Jhapa',
+          email: 'hamrosolutionhub@gmail.com',
+          mapLink: 'https://maps.app.goo.gl/rufnFrQQNA2mcvGJA',
+          logo: ''
+        });
+        const [users, setUsers] = useState([]);
+
+        const [filter, setFilter] = useState('All');
+        const [searchQuery, setSearchQuery] = useState('');
+        const [downloadFilter, setDownloadFilter] = useState('All');
+        const [downloadSearch, setDownloadSearch] = useState('');
+        const [selectedProduct, setSelectedProduct] = useState(null);
+
+        // Admin Edit States
+        const [editingProduct, setEditingProduct] = useState(null);
+        const [editingDownload, setEditingDownload] = useState(null);
+        const [editingTeam, setEditingTeam] = useState(null);
+
+        useEffect(() => {
+          fetchAllData();
+        }, []);
+
+        const fetchAllData = () => {
+          fetch(API_URL + "?action=getData")
+            .then(res => res.json())
+            .then(data => {
+              if (data.products) setProducts(data.products);
+              if (data.downloads) setDownloads(data.downloads);
+              if (data.team) setTeam(data.team);
+              if (data.settings) setSettings(data.settings);
+              if (data.users) setUsers(data.users);
+            })
+            .catch(() => {});
+        };
+
+        const handleLogin = (e) => {
+          e.preventDefault();
+          const matched = users.find(u => (u.username === loginCreds.user || u.id === loginCreds.user) && u.password === loginCreds.pass);
+          if (matched) {
+            setCurrentUser(matched);
+            setShowLoginModal(false);
+          } else {
+            alert("Invalid User ID or Password!");
+          }
+        };
+
+        const handleSaveProduct = async (e) => {
+          e.preventDefault();
+          alert("SAVING PRODUCT...");
+          await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'saveProduct', payload: editingProduct }) });
+          setEditingProduct(null);
+          fetchAllData();
+        };
+
+        const handleDeleteProduct = async (id) => {
+          if (confirm("DELETE THIS PRODUCT?")) {
+            await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteProduct', payload: { id } }) });
+            fetchAllData();
+          }
+        };
+
+        const handleSaveDownload = async (e) => {
+          e.preventDefault();
+          alert("SAVING DOWNLOAD...");
+          await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'saveDownload', payload: editingDownload }) });
+          setEditingDownload(null);
+          fetchAllData();
+        };
+
+        const handleDeleteDownload = async (id) => {
+          if (confirm("DELETE THIS DOWNLOAD?")) {
+            await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteDownload', payload: { id } }) });
+            fetchAllData();
+          }
+        };
+
+        const handleSaveTeam = async (e) => {
+          e.preventDefault();
+          alert("SAVING TEAM MEMBER...");
+          await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'saveTeam', payload: editingTeam }) });
+          setEditingTeam(null);
+          fetchAllData();
+        };
+
+        const handleDeleteTeam = async (id) => {
+          if (confirm("DELETE TEAM MEMBER?")) {
+            await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteTeam', payload: { id } }) });
+            fetchAllData();
+          }
+        };
+
+        const handleSaveSettings = async (e) => {
+          e.preventDefault();
+          alert("SAVING SETTINGS...");
+          await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'saveSettings', payload: settings }) });
+          fetchAllData();
+        };
+
+        const filteredProducts = products.filter(p => {
+          const matchesCat = filter === 'All' || p.category === filter;
+          const matchesSearch = p.name && p.name.toLowerCase().includes(searchQuery.toLowerCase());
+          return matchesCat && matchesSearch;
+        });
+
+        const filteredDownloads = downloads.filter(d => {
+          const matchesCat = downloadFilter === 'All' || d.category === downloadFilter;
+          const matchesSearch = d.name && d.name.toLowerCase().includes(downloadSearch.toLowerCase());
+          return matchesCat && matchesSearch;
+        });
+
+        return (
+          <div className="min-h-screen flex flex-col justify-between techy-bg text-gray-100">
+            {/* Header */}
+            <header className="bg-black/90 backdrop-blur-md shadow-2xl sticky top-0 z-40 border-b border-amber-500/20">
+              <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+                <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setPage('home')}>
+                  {settings.logo ? (
+                    <img src={settings.logo} alt="Logo" className="w-11 h-11 rounded-2xl object-cover border border-amber-500/50 shadow-md" />
+                  ) : (
+                    <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-600 via-amber-500 to-yellow-300 text-black flex items-center justify-center font-black text-lg shadow-lg shadow-amber-500/20">SH</div>
+                  )}
+                  <div>
+                    <h1 className="font-black text-base sm:text-lg leading-tight tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-100 to-amber-400 uppercase">SOLUTION HUB</h1>
+                    <p className="text-[9px] sm:text-[10px] text-amber-400 tracking-widest font-bold uppercase">INNOVATIVE SOLUTIONS | UNMATCHED SERVICES</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  {currentUser && <span className="text-xs text-amber-400 font-bold hidden sm:inline">👤 {currentUser.name || currentUser.username}</span>}
+                  
+                  {/* Clean Admin Login Icon Button */}
+                  <button 
+                    onClick={() => currentUser ? setCurrentUser(null) : setShowLoginModal(true)} 
+                    title={currentUser ? "LOGOUT" : "ADMIN LOGIN"}
+                    className="w-10 h-10 rounded-2xl bg-zinc-900 hover:bg-zinc-800 border border-amber-500/30 text-amber-400 flex items-center justify-center shadow-lg transition transform active:scale-95 group"
+                  >
+                    <svg className="w-5 h-5 group-hover:scale-110 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              {/* Navigation */}
+              <nav className="bg-zinc-950/95 border-t border-zinc-900/80 px-2 sm:px-4 py-2">
+                <div className="max-w-7xl mx-auto flex items-center justify-start sm:justify-center gap-1.5 sm:gap-4 text-xs font-bold overflow-x-auto py-1 no-scrollbar">
+                  <button onClick={() => setPage('home')} className={`px-4 py-2 rounded-xl transition whitespace-nowrap uppercase tracking-wider shrink-0 ${page === 'home' ? 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black shadow-lg font-black' : 'text-gray-300 hover:text-amber-400 hover:bg-white/5'}`}>🏠 HOME</button>
+                  <button onClick={() => setPage('shopping')} className={`px-4 py-2 rounded-xl transition whitespace-nowrap uppercase tracking-wider shrink-0 ${page === 'shopping' ? 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black shadow-lg font-black' : 'text-gray-300 hover:text-amber-400 hover:bg-white/5'}`}>🛍️ SHOPPING</button>
+                  <button onClick={() => setPage('about')} className={`px-4 py-2 rounded-xl transition whitespace-nowrap uppercase tracking-wider shrink-0 ${page === 'about' ? 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black shadow-lg font-black' : 'text-gray-300 hover:text-amber-400 hover:bg-white/5'}`}>ℹ️ ABOUT US</button>
+                  <button onClick={() => setPage('contact')} className={`px-4 py-2 rounded-xl transition whitespace-nowrap shrink-0 uppercase tracking-wider ${page === 'contact' ? 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black shadow-lg font-black' : 'text-gray-300 hover:text-amber-400 hover:bg-white/5'}`}>📞 CONTACT US</button>
+                  <button onClick={() => setPage('download')} className={`px-4 py-2 rounded-xl transition whitespace-nowrap shrink-0 uppercase tracking-wider ${page === 'download' ? 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black shadow-lg font-black' : 'text-gray-300 hover:text-amber-400 hover:bg-white/5'}`}>📥 DOWNLOAD</button>
+                </div>
+              </nav>
+            </header>
+
+            {/* Main Section */}
+            <main className="flex-grow">
+              {/* HOME PAGE */}
+              {page === 'home' && (
+                <div className="space-y-16 pb-16">
+                  <section className="relative overflow-hidden bg-gradient-to-b from-slate-900/90 via-zinc-950/90 to-black/90 text-white py-24 px-4 text-center space-y-6 border-b border-amber-500/10 glow-amber">
+                    <span className="inline-block bg-gradient-to-r from-amber-500/20 to-yellow-500/20 text-amber-400 border border-amber-500/30 text-xs px-4 py-1.5 rounded-full font-bold uppercase tracking-wider">⚡ WELCOME TO SOLUTION HUB</span>
+                    <h2 className="text-3xl sm:text-5xl md:text-6xl font-black max-w-3xl mx-auto leading-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-100 to-amber-300 uppercase">INNOVATIVE SOLUTIONS & UNMATCHED SERVICES</h2>
+                    <p className="text-sm sm:text-base text-gray-400 max-w-xl mx-auto leading-relaxed">Your ultimate one-stop shop for professional mobile repairing, electronic gadgets, studio-quality photography, and complete tech support.</p>
+                    <div className="flex justify-center gap-4 pt-4">
+                      <button onClick={() => setPage('shopping')} className="bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black px-7 py-3.5 rounded-xl font-black text-xs shadow-xl transition transform active:scale-95 uppercase">🛍️ SHOP PRODUCTS</button>
+                      <button onClick={() => setPage('contact')} className="border border-amber-500/30 bg-white/5 hover:bg-white/10 text-white px-7 py-3.5 rounded-xl font-black text-xs transition uppercase">📞 GET IN TOUCH</button>
+                    </div>
+                  </section>
+
+                  {/* Services on Home Page */}
+                  <section className="max-w-7xl mx-auto px-4">
+                    <div className="text-center space-y-2 mb-10">
+                      <h3 className="text-2xl sm:text-3xl font-black text-white uppercase">OUR PROFESSIONAL SERVICES</h3>
+                      <p className="text-xs sm:text-sm text-gray-400">Expert solutions tailored for all your tech and repair needs</p>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+                      <div className="bg-zinc-900/90 p-6 rounded-3xl shadow-xl border border-zinc-800 text-center space-y-4 hover:border-amber-500/50 transition">
+                        <div className="w-14 h-14 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center mx-auto text-2xl font-black">📱</div>
+                        <h4 className="font-extrabold text-base text-white uppercase">MOBILE REPAIR</h4>
+                        <p className="text-xs text-gray-400 leading-relaxed">Fast screen replacements, battery swaps & chip-level board repairs by experts.</p>
+                      </div>
+                      <div className="bg-zinc-900/90 p-6 rounded-3xl shadow-xl border border-zinc-800 text-center space-y-4 hover:border-amber-500/50 transition">
+                        <div className="w-14 h-14 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center mx-auto text-2xl font-black">⚡</div>
+                        <h4 className="font-extrabold text-base text-white uppercase">ELECTRONICS</h4>
+                        <p className="text-xs text-gray-400 leading-relaxed">Latest electronic accessories, chargers, earbuds, cables & gadgets.</p>
+                      </div>
+                      <div className="bg-zinc-900/90 p-6 rounded-3xl shadow-xl border border-zinc-800 text-center space-y-4 hover:border-amber-500/50 transition">
+                        <div className="w-14 h-14 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center mx-auto text-2xl font-black">📸</div>
+                        <h4 className="font-extrabold text-base text-white uppercase">PHOTO STUDIO</h4>
+                        <p className="text-xs text-gray-400 leading-relaxed">Instant passport photos, professional videography, editing & framing.</p>
+                      </div>
+                      <div className="bg-zinc-900/90 p-6 rounded-3xl shadow-xl border border-zinc-800 text-center space-y-4 hover:border-amber-500/50 transition">
+                        <div className="w-14 h-14 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center mx-auto text-2xl font-black">💻</div>
+                        <h4 className="font-extrabold text-base text-white uppercase">TECH SUPPORT</h4>
+                        <p className="text-xs text-gray-400 leading-relaxed">OS installation, virus removal, network troubleshooting & tech consulting.</p>
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* Home Page About Us & Contact Highlights */}
+                  <section className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-zinc-900">
+                    <div className="bg-zinc-900/80 p-8 rounded-3xl border border-zinc-800 space-y-4 flex flex-col justify-between">
+                      <div className="space-y-3">
+                        <span className="text-xs text-amber-400 font-bold uppercase tracking-wider">ℹ️ ABOUT SOLUTION HUB</span>
+                        <h3 className="text-xl font-black text-white uppercase">RELIABLE TECH & STUDIO EXPERTS</h3>
+                        <p className="text-xs text-gray-300 leading-relaxed">Located at {settings.address}, we bring state-of-the-art technological solutions and studio photography under one roof with uncompromised quality.</p>
+                      </div>
+                      <button onClick={() => setPage('about')} className="self-start text-xs font-black text-amber-400 hover:underline uppercase tracking-wider">READ MORE ABOUT US →</button>
+                    </div>
+
+                    <div className="bg-zinc-900/80 p-8 rounded-3xl border border-zinc-800 space-y-4 flex flex-col justify-between">
+                      <div className="space-y-3">
+                        <span className="text-xs text-amber-400 font-bold uppercase tracking-wider">📞 CONTACT & LOCATION</span>
+                        <h3 className="text-xl font-black text-white uppercase">VISIT OUR STORE OR CHAT WITH US</h3>
+                        <p className="text-xs text-gray-300 leading-relaxed">Have questions about mobile repairs or electronic items? Reach out via WhatsApp instantly at {settings.whatsapp}.</p>
+                      </div>
+                      <button onClick={() => setPage('contact')} className="self-start text-xs font-black text-amber-400 hover:underline uppercase tracking-wider">OPEN CONTACT & MAP →</button>
+                    </div>
+                  </section>
+                </div>
+              )}
+
+              {/* SHOPPING PAGE */}
+              {page === 'shopping' && (
+                <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
+                  <div className="text-center space-y-2">
+                    <h2 className="text-2xl sm:text-3xl font-black text-white uppercase">SHOPPING STORE</h2>
+                    <p className="text-xs sm:text-sm text-gray-400">Explore our quality electronic items, earbuds, chargers, and mobile accessories</p>
+                  </div>
+
+                  {currentUser && (
+                    <div className="flex justify-end">
+                      <button onClick={() => setEditingProduct({ id: '', name: '', category: 'Electronic', price: '', image: '', description: '', gallery: '[]' })} className="bg-amber-500 text-black px-4 py-2 rounded-xl text-xs font-black shadow uppercase">
+                        ➕ ADD NEW PRODUCT
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Search and Category Filter */}
+                  <div className="flex flex-col sm:flex-row gap-3 justify-between items-center bg-zinc-900/90 p-4 rounded-2xl border border-zinc-800 shadow-xl">
+                    <input 
+                      type="text" 
+                      placeholder="Search products..." 
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full sm:w-80 p-2.5 bg-zinc-950 border border-zinc-700 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500"
+                    />
+                    <div className="flex gap-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
+                      {['All', ...new Set(products.map(p => p.category))].map(cat => (
+                        <button key={cat} onClick={()=>setFilter(cat)} className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition ${filter===cat?'bg-gradient-to-r from-amber-500 to-yellow-400 text-black shadow-lg font-black':'bg-zinc-950 text-gray-300 border border-zinc-800'}`}>
+                          {cat}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {filteredProducts.length === 0 ? (
+                    <div className="text-center py-20 text-gray-500 text-xs uppercase">NO PRODUCTS FOUND.</div>
+                  ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
+                      {filteredProducts.map(prod => {
+                        const cleanNum = (settings.whatsapp || '+9779769726479').replace(/\D/g, '');
+                        const waText = encodeURIComponent(`Hello Solution Hub, I want to purchase this item:\n- Product: ${prod.name}\n- Price: ${prod.price}`);
+                        const waLink = `https://wa.me/${cleanNum}?text=${waText}`;
+
+                        return (
+                          <div key={prod.id} className="bg-gradient-to-b from-zinc-900 to-zinc-950 rounded-2xl shadow-xl border border-zinc-800 overflow-hidden flex flex-col justify-between group">
+                            <div className="cursor-pointer" onClick={() => setSelectedProduct(prod)}>
+                              <div className="overflow-hidden bg-zinc-950">
+                                <img src={prod.image} alt={prod.name} className="w-full h-36 sm:h-44 object-cover group-hover:scale-105 transition duration-300" />
+                              </div>
+                              <div className="p-3 sm:p-4 space-y-1.5">
+                                <span className="text-[9px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-full font-bold">{prod.category}</span>
+                                <h3 className="font-bold text-xs sm:text-sm text-white line-clamp-1">{prod.name}</h3>
+                                <p className="text-[11px] text-gray-400 line-clamp-1">{prod.description}</p>
+                                <p className="text-xs sm:text-sm font-black text-amber-400">{prod.price}</p>
+                              </div>
+                            </div>
+                            <div className="p-3 sm:p-4 pt-0 space-y-2">
+                              <div className="flex gap-2">
+                                <button onClick={() => setSelectedProduct(prod)} className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white text-center py-1.5 rounded-xl text-[11px] font-bold">Details</button>
+                                <a href={waLink} target="_blank" className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl text-[11px] font-black shadow-md text-center flex items-center justify-center">Shop Now</a>
+                              </div>
+                              {currentUser && (
+                                <div className="flex gap-1 pt-1 border-t border-zinc-800">
+                                  <button onClick={() => setEditingProduct(prod)} className="flex-1 bg-amber-600 text-black py-1 rounded text-[10px] font-bold">Edit</button>
+                                  <button onClick={() => handleDeleteProduct(prod.id)} className="flex-1 bg-rose-600 text-white py-1 rounded text-[10px] font-bold">Delete</button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ABOUT US PAGE */}
+              {page === 'about' && (
+                <div className="max-w-4xl mx-auto px-4 py-12 space-y-10">
+                  <div className="text-center space-y-3">
+                    <h2 className="text-2xl sm:text-3xl font-black text-white uppercase">ABOUT US</h2>
+                    <p className="text-xs sm:text-sm text-amber-400 font-extrabold tracking-wider uppercase">INNOVATIVE SOLUTIONS | UNMATCHED SERVICES</p>
+                    <p className="text-sm text-gray-300 leading-relaxed max-w-2xl mx-auto">Solution Hub is located at {settings.address}. We are a multi-service technical powerhouse dedicated to bringing high-quality tech repair, premium photo studio experiences, electronics retailing, and prompt customer support under one roof.</p>
+                  </div>
+
+                  <div className="space-y-6 pt-4">
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-lg font-black text-white uppercase">MANAGEMENT & LEADERSHIP TEAM</h3>
+                      {currentUser && (
+                        <button onClick={() => setEditingTeam({ id: '', name: '', role: '', image: '', desc: '' })} className="bg-amber-500 text-black px-3 py-1 rounded text-xs font-bold uppercase">➕ ADD MEMBER</button>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
+                      {team.map(member => (
+                        <div key={member.id} className="bg-zinc-900 p-6 rounded-3xl shadow-xl border border-zinc-800 text-center space-y-3 relative">
+                          <div className="w-20 h-20 bg-zinc-800 rounded-full mx-auto overflow-hidden border-2 border-amber-500 shadow-md">
+                            <img src={member.image} alt={member.name} className="w-full h-full object-cover" />
+                          </div>
+                          <h4 className="font-bold text-sm text-white">{member.name}</h4>
+                          <p className="text-xs text-amber-400 font-bold">{member.role}</p>
+                          <p className="text-[11px] text-gray-400">{member.desc}</p>
+                          {currentUser && (
+                            <div className="flex gap-2 pt-2">
+                              <button onClick={() => setEditingTeam(member)} className="flex-1 bg-amber-600 text-black py-1 rounded text-[10px] font-bold">Edit</button>
+                              <button onClick={() => handleDeleteTeam(member.id)} className="flex-1 bg-rose-600 text-white py-1 rounded text-[10px] font-bold">Delete</button>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* CONTACT US PAGE */}
+              {page === 'contact' && (
+                <div className="max-w-5xl mx-auto px-4 py-12 space-y-8">
+                  <h2 className="text-2xl sm:text-3xl font-black text-center text-white uppercase">GET IN TOUCH</h2>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="bg-zinc-900 p-6 sm:p-8 rounded-3xl shadow-xl border border-zinc-800 space-y-6 text-xs text-gray-300">
+                      <div className="space-y-3">
+                        <h3 className="font-bold text-sm text-amber-400 flex items-center justify-between uppercase">
+                          <span>📍 STORE INFORMATION</span>
+                          {currentUser && <span className="text-[10px] text-amber-300 underline">Editable below</span>}
+                        </h3>
+                        <p className="leading-relaxed"><strong>Address:</strong> {settings.address}</p>
+                        <p className="leading-relaxed"><strong>Mobile / WhatsApp:</strong> {settings.whatsapp}</p>
+                        <p className="leading-relaxed"><strong>Email:</strong> {settings.email}</p>
+                      </div>
+
+                      {/* Real Social Media Icons */}
+                      <div className="space-y-2">
+                        <h3 className="font-bold text-sm text-amber-400 uppercase">SOCIAL MEDIA CHANNELS</h3>
+                        <div className="flex gap-3 pt-1">
+                          <a href="https://facebook.com" target="_blank" className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow hover:opacity-90 transition" title="Facebook">
+                            <SocialIcons.Facebook />
+                          </a>
+                          <a href="https://instagram.com" target="_blank" className="w-10 h-10 rounded-xl bg-pink-600 text-white flex items-center justify-center shadow hover:opacity-90 transition" title="Instagram">
+                            <SocialIcons.Instagram />
+                          </a>
+                          <a href="https://whatsapp.com" target="_blank" className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow hover:opacity-90 transition" title="WhatsApp">
+                            <SocialIcons.WhatsApp />
+                          </a>
+                          <a href="https://youtube.com" target="_blank" className="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center shadow hover:opacity-90 transition" title="YouTube">
+                            <SocialIcons.YouTube />
+                          </a>
+                          <a href="https://tiktok.com" target="_blank" className="w-10 h-10 rounded-xl bg-black border border-zinc-700 text-white flex items-center justify-center shadow hover:opacity-90 transition" title="TikTok">
+                            <SocialIcons.TikTok />
+                          </a>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <h3 className="font-bold text-sm text-amber-400 uppercase">SHOP LOCATION MAP</h3>
+                        <div className="w-full h-44 bg-zinc-950 rounded-2xl overflow-hidden border border-zinc-800 shadow-inner">
+                          <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3560.1065012891965!2d87.971!3d26.541!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjYuMzMndiA4Ny.1OCdl!5e0!3m2!1sen!2snp!4v1620000000000!5m2!1sen!2snp" width="100%" height="100%" style={{border:0}} allowFullScreen="" loading="lazy"></iframe>
+                        </div>
+                        <div className="text-center pt-1">
+                          <a href={settings.mapLink} target="_blank" className="text-amber-400 hover:underline font-bold text-[11px]">🔗 OPEN IN GOOGLE MAPS APP</a>
+                        </div>
+                      </div>
+
+                      {currentUser && (
+                        <form onSubmit={handleSaveSettings} className="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 space-y-3 pt-4">
+                          <h4 className="font-bold text-amber-400 text-xs uppercase">⚙️ UPDATE STORE SETTINGS</h4>
+                          <div>
+                            <label className="block text-[10px] text-gray-400 mb-1">WhatsApp Number</label>
+                            <input type="text" value={settings.whatsapp} onChange={e=>setSettings({...settings, whatsapp:e.target.value})} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded text-white" />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] text-gray-400 mb-1">Address</label>
+                            <input type="text" value={settings.address} onChange={e=>setSettings({...settings, address:e.target.value})} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded text-white" />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] text-gray-400 mb-1">Email</label>
+                            <input type="text" value={settings.email} onChange={e=>setSettings({...settings, email:e.target.value})} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded text-white" />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] text-gray-400 mb-1">Map Link</label>
+                            <input type="text" value={settings.mapLink} onChange={e=>setSettings({...settings, mapLink:e.target.value})} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded text-white" />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] text-gray-400 mb-1">Logo Image URL</label>
+                            <input type="text" value={settings.logo} onChange={e=>setSettings({...settings, logo:e.target.value})} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded text-white" />
+                          </div>
+                          <button type="submit" className="w-full bg-amber-500 text-black py-2 rounded font-bold uppercase">SAVE SETTINGS</button>
+                        </form>
+                      )}
+                    </div>
+
+                    <div className="bg-zinc-900 p-6 sm:p-8 rounded-3xl shadow-xl border border-zinc-800 space-y-4">
+                      <h3 className="font-bold text-sm text-amber-400 uppercase">💬 SEND DIRECT MESSAGE TO WHATSAPP</h3>
+                      <form onSubmit={(e)=>{
+                        e.preventDefault();
+                        const cleanNum = (settings.whatsapp || '').replace(/\D/g, '');
+                        const text = encodeURIComponent(`Name: ${e.target.cname.value}\nPhone: ${e.target.cphone.value}\nMessage: ${e.target.cmsg.value}`);
+                        window.open(`https://wa.me/${cleanNum}?text=${text}`, '_blank');
+                      }} className="space-y-3 text-xs">
+                        <div>
+                          <label className="block font-bold mb-1 text-gray-300">Your Name</label>
+                          <input type="text" name="cname" required placeholder="Full Name" className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-white" />
+                        </div>
+                        <div>
+                          <label className="block font-bold mb-1 text-gray-300">Phone Number</label>
+                          <input type="text" name="cphone" required placeholder="Mobile Number" className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-white" />
+                        </div>
+                        <div>
+                          <label className="block font-bold mb-1 text-gray-300">Your Message / Inquiry</label>
+                          <textarea rows="4" name="cmsg" required placeholder="Write your requirement..." className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-white"></textarea>
+                        </div>
+                        <button type="submit" className="w-full bg-gradient-to-r from-emerald-600 to-green-600 text-white py-3.5 rounded-xl font-black shadow-lg transition uppercase">SEND MESSAGE VIA WHATSAPP</button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* DOWNLOAD PAGE */}
+              {page === 'download' && (
+                <div className="max-w-7xl mx-auto px-4 py-12 space-y-6">
+                  <div className="text-center space-y-2">
+                    <h2 className="text-2xl sm:text-3xl font-black text-white uppercase">SOFTWARE & UTILITY DOWNLOADS</h2>
+                    <p className="text-xs sm:text-sm text-gray-400">Download recommended repair utility tools and catalogs directly via Google Drive.</p>
+                  </div>
+
+                  {currentUser && (
+                    <div className="flex justify-end">
+                      <button onClick={() => setEditingDownload({ id: '', name: '', category: 'Utility Tool', size: '10 MB', image: '', link: '', desc: '' })} className="bg-amber-500 text-black px-4 py-2 rounded-xl text-xs font-black shadow uppercase">
+                        ➕ ADD NEW DOWNLOAD
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="flex flex-col sm:flex-row gap-3 justify-between items-center bg-zinc-900/90 p-4 rounded-2xl border border-zinc-800 shadow-xl">
+                    <input 
+                      type="text" 
+                      placeholder="Search downloads..." 
+                      value={downloadSearch}
+                      onChange={(e) => setDownloadSearch(e.target.value)}
+                      className="w-full sm:w-80 p-2.5 bg-zinc-950 border border-zinc-700 rounded-xl text-xs text-white"
+                    />
+                    <div className="flex gap-2 overflow-x-auto w-full sm:w-auto pb-1">
+                      {['All', ...new Set(downloads.map(d => d.category))].map(cat => (
+                        <button key={cat} onClick={()=>setDownloadFilter(cat)} className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition ${downloadFilter===cat?'bg-amber-500 text-black font-black':'bg-zinc-950 text-gray-300 border border-zinc-800'}`}>{cat}</button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {filteredDownloads.length === 0 ? (
+                    <div className="text-center py-20 text-gray-500 text-xs uppercase">NO DOWNLOADS FOUND.</div>
+                  ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
+                      {filteredDownloads.map(item => (
+                        <div key={item.id} className="bg-zinc-900 rounded-2xl shadow-xl border border-zinc-800 overflow-hidden flex flex-col justify-between">
+                          <div>
+                            <img src={item.image || 'https://images.unsplash.com/photo-1555680202-c86f0e12f086'} alt={item.name} className="w-full h-36 object-cover bg-zinc-950" />
+                            <div className="p-3 space-y-1">
+                              <span className="text-[9px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-full font-bold">{item.category}</span>
+                              <h3 className="font-bold text-xs text-white line-clamp-1">{item.name}</h3>
+                              <p className="text-[11px] text-gray-400 line-clamp-2">{item.desc}</p>
+                            </div>
+                          </div>
+                          <div className="p-3 pt-0 space-y-2">
+                            <a href={item.link} target="_blank" className="block w-full bg-amber-500 text-black text-center py-2 rounded-xl text-xs font-black uppercase">📥 GOOGLE DRIVE</a>
+                            {currentUser && (
+                              <div className="flex gap-1">
+                                <button onClick={() => setEditingDownload(item)} className="flex-1 bg-amber-600 text-black py-1 rounded text-[10px] font-bold">Edit</button>
+                                <button onClick={() => handleDeleteDownload(item.id)} className="flex-1 bg-rose-600 text-white py-1 rounded text-[10px] font-bold">Delete</button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </main>
+
+            {/* LOGIN MODAL */}
+            {showLoginModal && (
+              <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-50">
+                <div className="bg-zinc-900 border border-zinc-800 rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl relative">
+                  <button onClick={() => setShowLoginModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white font-bold">✕</button>
+                  <h3 className="font-black text-base text-white uppercase">ADMIN LOGIN</h3>
+                  <form onSubmit={handleLogin} className="space-y-3 text-xs">
+                    <input type="text" required placeholder="User ID / Username" value={loginCreds.user} onChange={e=>setLoginCreds({...loginCreds, user:e.target.value})} className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-white" />
+                    <input type="password" required placeholder="Password" value={loginCreds.pass} onChange={e=>setLoginCreds({...loginCreds, pass:e.target.value})} className="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-white" />
+                    <button type="submit" className="w-full bg-amber-500 text-black py-3 rounded-xl font-black shadow uppercase">LOGIN NOW</button>
+                  </form>
+                </div>
+              </div>
+            )}
+
+            {/* EDIT PRODUCT MODAL */}
+            {editingProduct && (
+              <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-50">
+                <div className="bg-zinc-900 border border-zinc-800 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
+                  <button onClick={() => setEditingProduct(null)} className="absolute top-4 right-4 text-gray-400 hover:text-white font-bold">✕</button>
+                  <h3 className="font-black text-base text-white uppercase">EDIT / ADD PRODUCT</h3>
+                  <form onSubmit={handleSaveProduct} className="space-y-3 text-xs">
+                    <input type="text" placeholder="Name" required value={editingProduct.name} onChange={e=>setEditingProduct({...editingProduct, name:e.target.value})} className="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white" />
+                    <input type="text" placeholder="Category" required value={editingProduct.category} onChange={e=>setEditingProduct({...editingProduct, category:e.target.value})} className="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white" />
+                    <input type="text" placeholder="Price" required value={editingProduct.price} onChange={e=>setEditingProduct({...editingProduct, price:e.target.value})} className="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white" />
+                    <input type="text" placeholder="Main Image URL" required value={editingProduct.image} onChange={e=>setEditingProduct({...editingProduct, image:e.target.value})} className="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white" />
+                    <textarea placeholder="Description" value={editingProduct.description} onChange={e=>setEditingProduct({...editingProduct, description:e.target.value})} className="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white"></textarea>
+                    <button type="submit" className="w-full bg-amber-500 text-black py-3 rounded-xl font-black uppercase">SAVE PRODUCT</button>
+                  </form>
+                </div>
+              </div>
+            )}
+
+            {/* EDIT DOWNLOAD MODAL */}
+            {editingDownload && (
+              <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-50">
+                <div className="bg-zinc-900 border border-zinc-800 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
+                  <button onClick={() => setEditingDownload(null)} className="absolute top-4 right-4 text-gray-400 hover:text-white font-bold">✕</button>
+                  <h3 className="font-black text-base text-white uppercase">EDIT / ADD DOWNLOAD</h3>
+                  <form onSubmit={handleSaveDownload} className="space-y-3 text-xs">
+                    <input type="text" placeholder="Name" required value={editingDownload.name} onChange={e=>setEditingDownload({...editingDownload, name:e.target.value})} className="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white" />
+                    <input type="text" placeholder="Category" required value={editingDownload.category} onChange={e=>setEditingDownload({...editingDownload, category:e.target.value})} className="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white" />
+                    <input type="text" placeholder="Size (e.g. 45 MB)" required value={editingDownload.size} onChange={e=>setEditingDownload({...editingDownload, size:e.target.value})} className="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white" />
+                    <input type="text" placeholder="Google Drive Link" required value={editingDownload.link} onChange={e=>setEditingDownload({...editingDownload, link:e.target.value})} className="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white" />
+                    <input type="text" placeholder="Image URL" required value={editingDownload.image} onChange={e=>setEditingDownload({...editingDownload, image:e.target.value})} className="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white" />
+                    <textarea placeholder="Description" value={editingDownload.desc} onChange={e=>setEditingDownload({...editingDownload, desc:e.target.value})} className="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white"></textarea>
+                    <button type="submit" className="w-full bg-amber-500 text-black py-3 rounded-xl font-black uppercase">SAVE DOWNLOAD</button>
+                  </form>
+                </div>
+              </div>
+            )}
+
+            {/* PRODUCT DETAILS MODAL */}
+            {selectedProduct && (
+              <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-50">
+                <div className="bg-zinc-900 border border-zinc-800 rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl relative">
+                  <button onClick={() => setSelectedProduct(null)} className="absolute top-4 right-4 w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-gray-300 hover:text-white font-bold">✕</button>
+                  <h3 className="font-black text-lg text-white pr-6">{selectedProduct.name}</h3>
+                  
+                  <img src={selectedProduct.image} alt={selectedProduct.name} className="w-full h-52 object-cover rounded-2xl bg-zinc-950 border border-zinc-800" />
+                  
+                  {selectedProduct.gallery && selectedProduct.gallery.length > 0 && (
+                    <div className="grid grid-cols-3 gap-2">
+                      {selectedProduct.gallery.map((imgUrl, idx) => (
+                        <img key={idx} src={imgUrl} alt="Gallery" className="w-full h-20 object-cover rounded-xl border border-zinc-800 cursor-pointer hover:opacity-80 transition" onClick={() => setSelectedProduct({...selectedProduct, image: imgUrl})} />
+                      ))}
+                    </div>
+                  )}
+
+                  <p className="text-xs text-gray-300 leading-relaxed">{selectedProduct.description}</p>
+                  <div className="flex justify-between items-center pt-2">
+                    <span className="text-base font-black text-amber-400">{selectedProduct.price}</span>
+                    {(() => {
+                      const cleanNum = (settings.whatsapp || '').replace(/\D/g, '');
+                      const waLink = `https://wa.me/${cleanNum}?text=` + encodeURIComponent(`Hello Solution Hub, I want to purchase: ${selectedProduct.name} (${selectedProduct.price})`);
+                      return (
+                        <a href={waLink} target="_blank" className="bg-gradient-to-r from-emerald-600 to-green-600 text-white px-5 py-2.5 rounded-xl text-xs font-black shadow-lg transition uppercase">SHOP NOW</a>
+                      );
+                    })()}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Footer with Menu and Copyright */}
+            <footer className="bg-black text-white py-8 px-4 mt-16 border-t border-zinc-800/80 space-y-6">
+              <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+                <div className="flex items-center gap-3 cursor-pointer" onClick={() => setPage('home')}>
+                  <div className="w-9 h-9 rounded-xl bg-amber-500 text-black flex items-center justify-center font-black text-sm">SH</div>
+                  <span className="font-black text-sm tracking-widest uppercase">SOLUTION HUB</span>
+                </div>
+                
+                {/* Footer Menu */}
+                <div className="flex flex-wrap justify-center gap-4 text-xs font-bold uppercase tracking-wider text-gray-400">
+                  <button onClick={() => setPage('home')} className="hover:text-amber-400 transition">HOME</button>
+                  <button onClick={() => setPage('shopping')} className="hover:text-amber-400 transition">SHOPPING</button>
+                  <button onClick={() => setPage('about')} className="hover:text-amber-400 transition">ABOUT US</button>
+                  <button onClick={() => setPage('contact')} className="hover:text-amber-400 transition">CONTACT US</button>
+                  <button onClick={() => setPage('download')} className="hover:text-amber-400 transition">DOWNLOAD</button>
+                </div>
+
+                <div className="flex gap-3 text-amber-400">
+                  <a href="https://facebook.com" target="_blank" className="hover:scale-110 transition"><SocialIcons.Facebook /></a>
+                  <a href="https://instagram.com" target="_blank" className="hover:scale-110 transition"><SocialIcons.Instagram /></a>
+                  <a href="https://whatsapp.com" target="_blank" className="hover:scale-110 transition"><SocialIcons.WhatsApp /></a>
+                  <a href="https://youtube.com" target="_blank" className="hover:scale-110 transition"><SocialIcons.YouTube /></a>
+                </div>
+              </div>
+
+              <div className="max-w-7xl mx-auto text-center text-[11px] text-gray-500 border-t border-zinc-900 pt-4 uppercase">
+                <p>&copy; 2026 SOLUTION HUB. ALL RIGHTS RESERVED.</p>
+              </div>
+            </footer>
+          </div>
+        );
+      }
+
+      ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
