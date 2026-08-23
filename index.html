@@ -3,14 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SOLUTION HUB | ELECTRONIC, MOBILE REPAIR & WEB DEV</title>
+    <title id="meta-title">SOLUTION HUB | ELECTRONIC, MOBILE REPAIR & WEB DEV</title>
     
-    <!-- Dynamic Open Graph Tags for Social Sharing -->
+    <!-- Dynamic Open Graph & SEO Meta Tags -->
+    <meta name="description" id="meta-desc" content="Your ultimate high-tech destination for mobile repair, web development, photo studio, and accessories.">
     <meta property="og:title" id="og-title" content="SOLUTION HUB | Innovative Tech Solutions">
     <meta property="og:description" id="og-desc" content="Your ultimate high-tech destination for mobile repair, web development, photo studio, and accessories.">
     <meta property="og:image" id="og-image" content="https://placehold.co/1200x630/030712/f59e0b?text=SOLUTION+HUB">
-    <meta property="og:url" id="og-url" content="">
+    <meta property="og:url" id="og-url" content="https://solutionhubnepal.com.np/">
     <meta property="og:type" content="product">
+    <link rel="canonical" id="canonical-url" href="https://solutionhubnepal.com.np/">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -26,8 +28,6 @@
         background-size: 100% 100%, 30px 30px, 30px 30px;
       }
       .glow-amber { box-shadow: 0 0 35px rgba(245, 158, 11, 0.22); }
-      .glow-cyan { box-shadow: 0 0 35px rgba(6, 182, 212, 0.22); }
-      
       .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
       .custom-scrollbar::-webkit-scrollbar-thumb { background: #f59e0b; border-radius: 6px; }
       .custom-scrollbar::-webkit-scrollbar-track { background: #090d16; }
@@ -56,9 +56,6 @@
         -webkit-text-fill-color: transparent;
         animation: textShimmer 6s ease infinite;
       }
-
-      .no-scrollbar::-webkit-scrollbar { display: none; }
-      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="techy-bg text-gray-100 font-sans min-h-screen flex flex-col justify-between selection:bg-amber-500 selection:text-black">
@@ -68,7 +65,9 @@
       const { useState, useEffect, useRef } = React;
 
       // 🔴 SECURE API URL 🔴
+      // यहाँ आफ्नो गुगल स्क्रिप्टको New Deployment URL हाल्नुहोस्
       const API_URL = "https://script.google.com/macros/s/AKfycbyxc0GtwCU_Gx2scVdTM6I38vml0Oza__Zftg13jDg5D_DiQp1rf2y2e3jxocxuKx2ZUQ/exec";
+      const BASE_DOMAIN = "https://solutionhubnepal.com.np";
 
       const SocialIcons = {
         Facebook: () => <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M22.675 0h-21.35c-.732 0-1.325.593-1.325 1.325v21.351c0 .731.593 1.324 1.325 1.324h11.495v-9.294h-3.128v-3.622h3.128v-2.671c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.325v-21.35c0-.732-.593-1.325-1.325-1.325z"/></svg>,
@@ -137,10 +136,104 @@
         // Parallax Scroll Offset
         const [scrollOffset, setScrollOffset] = useState(0);
 
+        // ==========================================
+        // ROUTING & HISTORY API ENGINE
+        // ==========================================
+        const navigateTo = (targetPage, push = true) => {
+          let route = targetPage.startsWith('/') ? targetPage : '/' + targetPage;
+          if (route === '/home') route = '/';
+          
+          if (push) {
+            window.history.pushState({ page: targetPage }, '', route);
+          }
+          
+          handleRouteChange(targetPage);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        const handleRouteChange = (targetPage) => {
+          let cleanPage = targetPage.replace(/^\/+/, '');
+          if (!cleanPage || cleanPage === 'home') {
+            setPage('home');
+            updateSEO('Solution Hub | Electronic, Mobile Repair & Web Dev', 'Your ultimate high-tech destination for mobile repair, web development, photo studio, and accessories.', BASE_DOMAIN + '/');
+          } else if (cleanPage === 'shopping') {
+            setPage('shopping');
+            updateSEO('Shopping Store | Solution Hub', 'Explore our quality items, earbuds, chargers, and tech accessories.', BASE_DOMAIN + '/shopping');
+          } else if (cleanPage === 'services') {
+            setPage('services');
+            updateSEO('Our Services | Solution Hub', 'Explore professional mobile repair, web app development, and studio services.', BASE_DOMAIN + '/services');
+          } else if (cleanPage === 'about') {
+            setPage('about');
+            updateSEO('About Us | Solution Hub', 'Learn more about Solution Hub team, mission, and expert technical solutions.', BASE_DOMAIN + '/about');
+          } else if (cleanPage === 'contact') {
+            setPage('contact');
+            updateSEO('Contact Us | Solution Hub', 'Get in touch with Solution Hub for technical inquiries and repair support.', BASE_DOMAIN + '/contact');
+          } else if (cleanPage === 'blog') {
+            setPage('blog');
+            updateSEO('Tech Blog & Updates | Solution Hub', 'Read our latest tech tips, repair guides, and web development insights.', BASE_DOMAIN + '/blog');
+          } else if (cleanPage === 'gallery') {
+            setPage('gallery');
+            updateSEO('Portfolio & Gallery | Solution Hub', 'Browse high-resolution photos of our recent repair works and web projects.', BASE_DOMAIN + '/gallery');
+          } else if (cleanPage === 'download') {
+            setPage('download');
+            updateSEO('Software & Utility Downloads | Solution Hub', 'Download recommended repair tools and flashing utilities.', BASE_DOMAIN + '/download');
+          } else {
+            setPage('404');
+            updateSEO('Page Not Found | Solution Hub', 'The page you are looking for does not exist.', BASE_DOMAIN + window.location.pathname);
+          }
+        };
+
+        const updateSEO = (title, desc, canonical) => {
+          document.title = title;
+          const metaTitle = document.getElementById('meta-title');
+          const metaDesc = document.getElementById('meta-desc');
+          const ogTitle = document.getElementById('og-title');
+          const ogDesc = document.getElementById('og-desc');
+          const ogUrl = document.getElementById('og-url');
+          const canonicalTag = document.getElementById('canonical-url');
+
+          if(metaTitle) metaTitle.innerText = title;
+          if(metaDesc) metaDesc.content = desc;
+          if(ogTitle) ogTitle.content = title;
+          if(ogDesc) ogDesc.content = desc;
+          if(ogUrl) ogUrl.content = canonical;
+          if(canonicalTag) canonicalTag.href = canonical;
+        };
+
         useEffect(() => {
           const handleScroll = () => setScrollOffset(window.scrollY);
           window.addEventListener('scroll', handleScroll, { passive: true });
+
+          // Handle GitHub Pages SPA redirection
+          const params = new URLSearchParams(window.location.search);
+          const redirectedPath = params.get('p');
+          if (redirectedPath) {
+            window.history.replaceState({}, '', redirectedPath);
+          }
+
+          const pathname = window.location.pathname;
+          let currentRoute = pathname === '/' ? 'home' : pathname.replace(/^\/+/, '');
           
+          const hash = window.location.hash;
+          if (hash && hash.startsWith('#product=')) {
+            const targetId = hash.replace('#product=', '');
+            setTimeout(() => {
+              if (products.length > 0) {
+                const found = products.find(p => String(p.id) === targetId);
+                if (found) openProductModal(found);
+              }
+            }, 600);
+          }
+
+          handleRouteChange(currentRoute);
+
+          const onPopState = () => {
+            const path = window.location.pathname === '/' ? 'home' : window.location.pathname.replace(/^\/+/, '');
+            handleRouteChange(path);
+          };
+          window.addEventListener('popstate', onPopState);
+
+          // Fetch Data from Google Apps Script Backend
           fetch(API_URL + "?action=getData")
             .then(res => res.json())
             .then(data => {
@@ -148,27 +241,10 @@
                 const cleanProducts = data.products.filter(p => p && p.name);
                 setProducts(cleanProducts);
                 
-                // Deep Link Check: If URL contains #product={id}
-                const hash = window.location.hash;
                 if (hash && hash.startsWith('#product=')) {
                   const targetId = hash.replace('#product=', '');
                   const found = cleanProducts.find(p => String(p.id) === targetId);
-                  if (found) {
-                    setSelectedProduct(found);
-                    setActiveDetailImage(found.image);
-                    
-                    // Update Meta Tags dynamically for dynamic previewing
-                    document.title = `${found.name} | Solution Hub`;
-                    const ogTitle = document.getElementById('og-title');
-                    const ogDesc = document.getElementById('og-desc');
-                    const ogImg = document.getElementById('og-image');
-                    const ogUrl = document.getElementById('og-url');
-                    
-                    if(ogTitle) ogTitle.content = `${found.name} - ${found.price}`;
-                    if(ogDesc) ogDesc.content = found.description;
-                    if(ogImg) ogImg.content = found.image;
-                    if(ogUrl) ogUrl.content = window.location.href;
-                  }
+                  if (found) openProductModal(found);
                 }
               }
               if (data.ads) setAds(data.ads.filter(a => a && a.title));
@@ -178,18 +254,36 @@
             })
             .catch(err => console.log("Fetch Error", err));
 
-          return () => window.removeEventListener('scroll', handleScroll);
-        }, []);
+          return () => {
+            window.removeEventListener('scroll', handleScroll);
+            window.removeEventListener('popstate', onPopState);
+          };
+        }, [products.length]);
 
+        const openProductModal = (prod) => {
+          setSelectedProduct(prod);
+          setActiveDetailImage(prod.image);
+          updateSEO(`${prod.name} | Solution Hub`, prod.description, BASE_DOMAIN + `/product/${prod.id}`);
+        };
+
+        // AD SLIDESHOW LOGIC (Fixed String Comparison)
+        const isSlideshowEnabled = String(settings.slideshowEnabled).toLowerCase() === 'true';
         const activeAds = ads.filter(a => String(a.status).toLowerCase() === 'active').sort((a,b) => (a.order||0) - (b.order||0));
         
+        // Reset currentSlide if it exceeds array length
+        useEffect(() => {
+            if (activeAds.length > 0 && currentSlide >= activeAds.length) {
+                setCurrentSlide(0);
+            }
+        }, [activeAds.length]);
+
         useEffect(() => {
           if (isSlidePaused || activeAds.length <= 1) return;
           const timer = setInterval(() => {
             setCurrentSlide(prev => (prev + 1) % activeAds.length);
           }, 5000);
           return () => clearInterval(timer);
-        }, [activeAds, isSlidePaused]);
+        }, [activeAds.length, isSlidePaused]);
 
         const showAlert = (msg, type = 'info') => setCustomAlert({ show: true, msg, type });
         const showConfirm = (msg, onConfirm) => setCustomConfirm({ show: true, msg, onConfirm });
@@ -199,11 +293,7 @@
             try {
                 const req = await fetch(API_URL, { 
                     method: 'POST', 
-                    body: JSON.stringify({ 
-                        action, 
-                        token: currentUser ? currentUser.token : null, 
-                        payload 
-                    }) 
+                    body: JSON.stringify({ action, token: currentUser ? currentUser.token : null, payload }) 
                 });
                 const res = await req.json();
                 
@@ -356,7 +446,7 @@
             {/* Header */}
             <header className="bg-black/90 backdrop-blur-md shadow-2xl sticky top-0 z-40 border-b border-amber-500/20">
               <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-                <div className="flex items-center gap-3 cursor-pointer group" onClick={() => window.location.reload()}>
+                <div className="flex items-center gap-3 cursor-pointer group" onClick={() => navigateTo('home')}>
                   <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-600 via-amber-500 to-yellow-300 text-black flex items-center justify-center font-black text-lg shadow-lg shadow-amber-500/20 group-hover:rotate-6 transition">SH</div>
                   <div>
                     <h1 className="font-black text-base sm:text-lg leading-tight tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-100 to-amber-400 uppercase">SOLUTION HUB</h1>
@@ -381,22 +471,25 @@
               {/* Navigation Menu */}
               <nav className="bg-zinc-950/95 border-t border-zinc-900/80 px-2 sm:px-4 py-2">
                 <div className="max-w-7xl mx-auto flex items-center justify-start sm:justify-center gap-1.5 sm:gap-4 text-xs font-bold overflow-x-auto py-1 custom-scrollbar">
-                  <button onClick={() => setPage('home')} className={`px-4 py-2 rounded-xl transition whitespace-nowrap uppercase tracking-wider shrink-0 ${page === 'home' ? 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black shadow-lg font-black' : 'text-gray-300 hover:text-amber-400 hover:bg-white/5'}`}>🏠 HOME</button>
-                  <button onClick={() => setPage('shopping')} className={`px-4 py-2 rounded-xl transition whitespace-nowrap uppercase tracking-wider shrink-0 ${page === 'shopping' ? 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black shadow-lg font-black' : 'text-gray-300 hover:text-amber-400 hover:bg-white/5'}`}>🛍️ SHOPPING</button>
-                  <button onClick={() => setPage('about')} className={`px-4 py-2 rounded-xl transition whitespace-nowrap uppercase tracking-wider shrink-0 ${page === 'about' ? 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black shadow-lg font-black' : 'text-gray-300 hover:text-amber-400 hover:bg-white/5'}`}>ℹ️ ABOUT US</button>
-                  <button onClick={() => setPage('contact')} className={`px-4 py-2 rounded-xl transition whitespace-nowrap shrink-0 uppercase tracking-wider ${page === 'contact' ? 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black shadow-lg font-black' : 'text-gray-300 hover:text-amber-400 hover:bg-white/5'}`}>📞 CONTACT US</button>
-                  <button onClick={() => setPage('download')} className={`px-4 py-2 rounded-xl transition whitespace-nowrap shrink-0 uppercase tracking-wider ${page === 'download' ? 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black shadow-lg font-black' : 'text-gray-300 hover:text-amber-400 hover:bg-white/5'}`}>📥 DOWNLOAD</button>
+                  <button onClick={() => navigateTo('home')} className={`px-4 py-2 rounded-xl transition whitespace-nowrap uppercase tracking-wider shrink-0 ${page === 'home' ? 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black shadow-lg font-black' : 'text-gray-300 hover:text-amber-400 hover:bg-white/5'}`}>🏠 HOME</button>
+                  <button onClick={() => navigateTo('shopping')} className={`px-4 py-2 rounded-xl transition whitespace-nowrap uppercase tracking-wider shrink-0 ${page === 'shopping' ? 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black shadow-lg font-black' : 'text-gray-300 hover:text-amber-400 hover:bg-white/5'}`}>🛍️ SHOPPING</button>
+                  <button onClick={() => navigateTo('services')} className={`px-4 py-2 rounded-xl transition whitespace-nowrap uppercase tracking-wider shrink-0 ${page === 'services' ? 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black shadow-lg font-black' : 'text-gray-300 hover:text-amber-400 hover:bg-white/5'}`}>💻 SERVICES</button>
+                  <button onClick={() => navigateTo('about')} className={`px-4 py-2 rounded-xl transition whitespace-nowrap uppercase tracking-wider shrink-0 ${page === 'about' ? 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black shadow-lg font-black' : 'text-gray-300 hover:text-amber-400 hover:bg-white/5'}`}>ℹ️ ABOUT US</button>
+                  <button onClick={() => navigateTo('contact')} className={`px-4 py-2 rounded-xl transition whitespace-nowrap shrink-0 uppercase tracking-wider ${page === 'contact' ? 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black shadow-lg font-black' : 'text-gray-300 hover:text-amber-400 hover:bg-white/5'}`}>📞 CONTACT US</button>
+                  <button onClick={() => navigateTo('blog')} className={`px-4 py-2 rounded-xl transition whitespace-nowrap shrink-0 uppercase tracking-wider ${page === 'blog' ? 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black shadow-lg font-black' : 'text-gray-300 hover:text-amber-400 hover:bg-white/5'}`}>📰 BLOG</button>
+                  <button onClick={() => navigateTo('gallery')} className={`px-4 py-2 rounded-xl transition whitespace-nowrap shrink-0 uppercase tracking-wider ${page === 'gallery' ? 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black shadow-lg font-black' : 'text-gray-300 hover:text-amber-400 hover:bg-white/5'}`}>🖼️ GALLERY</button>
+                  <button onClick={() => navigateTo('download')} className={`px-4 py-2 rounded-xl transition whitespace-nowrap shrink-0 uppercase tracking-wider ${page === 'download' ? 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black shadow-lg font-black' : 'text-gray-300 hover:text-amber-400 hover:bg-white/5'}`}>📥 DOWNLOAD</button>
                 </div>
               </nav>
             </header>
 
             <main className="flex-grow">
               
-              {}
+              {/* HOME PAGE */}
               {page === 'home' && (
                 <div className="space-y-12 pb-16 overflow-hidden">
                   
-                  {/* HERO SECTION WITH SCROLL ANIMATED TEXT */}
+                  {/* HERO SECTION */}
                   <section className="relative overflow-hidden bg-gradient-to-b from-slate-900/95 via-zinc-950/95 to-black text-white py-20 px-4 text-center space-y-8 border-b border-amber-500/20 glow-amber">
                     <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-amber-500/10 blur-[120px] rounded-full pointer-events-none animate-pulse-glow"></div>
                     
@@ -418,15 +511,14 @@
                       </p>
 
                       <div className="flex flex-wrap justify-center gap-4 pt-2">
-                        <button onClick={() => setPage('shopping')} className="bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black px-8 py-3.5 rounded-xl font-black text-xs shadow-[0_0_20px_rgba(245,158,11,0.4)] transition transform active:scale-95 uppercase tracking-wider">🛍️ EXPLORE SHOP</button>
-                        <button onClick={() => setPage('contact')} className="border border-amber-500/40 bg-zinc-900/80 hover:bg-zinc-800 text-amber-400 px-8 py-3.5 rounded-xl font-black text-xs transition uppercase tracking-wider shadow-lg">📞 GET IN TOUCH</button>
+                        <button onClick={() => navigateTo('shopping')} className="bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black px-8 py-3.5 rounded-xl font-black text-xs shadow-[0_0_20px_rgba(245,158,11,0.4)] transition transform active:scale-95 uppercase tracking-wider">🛍️ EXPLORE SHOP</button>
+                        <button onClick={() => navigateTo('contact')} className="border border-amber-500/40 bg-zinc-900/80 hover:bg-zinc-800 text-amber-400 px-8 py-3.5 rounded-xl font-black text-xs transition uppercase tracking-wider shadow-lg">📞 GET IN TOUCH</button>
                       </div>
                     </div>
                   </section>
 
-                  {}
                   {/* PROMOTIONAL / ADVERTISEMENT SLIDESHOW */}
-                  {settings.slideshowEnabled === 'true' && activeAds.length > 0 && (
+                  {isSlideshowEnabled && activeAds.length > 0 && (
                     <section className="max-w-6xl mx-auto px-4" onMouseEnter={() => setIsSlidePaused(true)} onMouseLeave={() => setIsSlidePaused(false)}>
                       <div className="flex justify-between items-center mb-3">
                         <span className="text-xs font-black text-amber-400 uppercase tracking-widest flex items-center gap-2">
@@ -443,7 +535,7 @@
                       <div className="bg-gradient-to-r from-zinc-900 via-zinc-900/95 to-zinc-950 border border-amber-500/40 rounded-3xl p-4 sm:p-6 shadow-2xl relative overflow-hidden group">
                         <div className="flex flex-col md:flex-row items-center gap-6 relative z-10">
                           
-                          {/* Slide Media Player (Image or Video) */}
+                          {/* Slide Media Player */}
                           <div className="w-full md:w-1/2 h-60 sm:h-72 bg-zinc-950 rounded-2xl border border-zinc-800 overflow-hidden relative flex items-center justify-center">
                             {activeAds[currentSlide]?.mediaType === 'video' ? (
                               <iframe 
@@ -480,7 +572,7 @@
                             <div className="flex flex-wrap justify-center md:justify-start gap-3 pt-2">
                               {activeAds[currentSlide]?.buyNowUrl && activeAds[currentSlide]?.buyNowUrl !== '#' && (
                                 <a href={activeAds[currentSlide]?.buyNowUrl} target="_blank" className="bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-500 hover:to-green-400 text-white px-6 py-3 rounded-xl text-xs font-black shadow-lg uppercase transition flex items-center gap-2">
-                                  <SocialIcons.WhatsApp /> BUY NOW
+                                  <SocialIcons.WhatsApp/> BUY NOW
                                 </a>
                               )}
                               {activeAds[currentSlide]?.detailsUrl && activeAds[currentSlide]?.detailsUrl !== '#' && (
@@ -496,7 +588,7 @@
                               )}
                             </div>
 
-                            {/* Manual Controls & Indicator Dots */}
+                            {/* Manual Controls & Dots */}
                             <div className="flex items-center justify-between pt-4 border-t border-zinc-800/80">
                               <div className="flex gap-1.5">
                                 {activeAds.map((_, idx) => (
@@ -518,25 +610,13 @@
                     </section>
                   )}
 
-                  {/* Impact & Metrics Counter Section */}
+                  {/* Metrics Counter Section */}
                   <section className="max-w-7xl mx-auto px-4">
                     <div className="bg-gradient-to-r from-zinc-900 via-zinc-900/90 to-zinc-950 border border-amber-500/30 rounded-3xl p-8 shadow-2xl grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-                      <div className="space-y-1 border-r border-zinc-800 last:border-none">
-                        <span className="text-3xl sm:text-4xl font-black text-amber-400">150+</span>
-                        <h5 className="text-xs font-bold text-gray-300 uppercase tracking-wider">Projects Completed</h5>
-                      </div>
-                      <div className="space-y-1 border-r border-zinc-800 last:border-none">
-                        <span className="text-3xl sm:text-4xl font-black text-emerald-400">1,200+</span>
-                        <h5 className="text-xs font-bold text-gray-300 uppercase tracking-wider">Happy Clients</h5>
-                      </div>
-                      <div className="space-y-1 border-r border-zinc-800 last:border-none">
-                        <span className="text-3xl sm:text-4xl font-black text-yellow-400">5+</span>
-                        <h5 className="text-xs font-bold text-gray-300 uppercase tracking-wider">Years Experience</h5>
-                      </div>
-                      <div className="space-y-1">
-                        <span className="text-3xl sm:text-4xl font-black text-cyan-400">100%</span>
-                        <h5 className="text-xs font-bold text-gray-300 uppercase tracking-wider">Secure Support</h5>
-                      </div>
+                      <div className="space-y-1 border-r border-zinc-800 last:border-none"><span className="text-3xl sm:text-4xl font-black text-amber-400">150+</span><h5 className="text-xs font-bold text-gray-300 uppercase tracking-wider">Projects Completed</h5></div>
+                      <div className="space-y-1 border-r border-zinc-800 last:border-none"><span className="text-3xl sm:text-4xl font-black text-emerald-400">1,200+</span><h5 className="text-xs font-bold text-gray-300 uppercase tracking-wider">Happy Clients</h5></div>
+                      <div className="space-y-1 border-r border-zinc-800 last:border-none"><span className="text-3xl sm:text-4xl font-black text-yellow-400">5+</span><h5 className="text-xs font-bold text-gray-300 uppercase tracking-wider">Years Experience</h5></div>
+                      <div className="space-y-1"><span className="text-3xl sm:text-4xl font-black text-cyan-400">100%</span><h5 className="text-xs font-bold text-gray-300 uppercase tracking-wider">Secure Support</h5></div>
                     </div>
                   </section>
 
@@ -569,35 +649,9 @@
                       </div>
                     </div>
                   </section>
-
-                  {/* Recent Works Showcase Section */}
-                  <section className="max-w-7xl mx-auto px-4 space-y-6">
-                    <div className="text-center space-y-2">
-                      <h3 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-wide">OUR RECENT WORK & PROJECTS</h3>
-                      <p className="text-xs sm:text-sm text-gray-400">Highlights from our recent technical deployments and customer successes</p>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                      <div className="bg-zinc-900/90 border border-zinc-800 rounded-3xl p-6 space-y-3 hover:border-amber-500/40 transition">
-                        <div className="h-36 bg-zinc-950 rounded-2xl border border-zinc-800 flex items-center justify-center text-amber-400 font-black text-sm uppercase">🌐 Business Web Portal</div>
-                        <h4 className="font-bold text-white text-sm uppercase">Advanced E-Commerce System</h4>
-                        <p className="text-xs text-gray-400">Developed a lightning-fast responsive web app with order tracking and secure management.</p>
-                      </div>
-                      <div className="bg-zinc-900/90 border border-zinc-800 rounded-3xl p-6 space-y-3 hover:border-amber-500/40 transition">
-                        <div className="h-36 bg-zinc-950 rounded-2xl border border-zinc-800 flex items-center justify-center text-emerald-400 font-black text-sm uppercase">📱 Motherboard Repair</div>
-                        <h4 className="font-bold text-white text-sm uppercase">Complex IC Chip Restoration</h4>
-                        <p className="text-xs text-gray-400">Successfully restored dead flagship smartphones using precision micro-soldering.</p>
-                      </div>
-                      <div className="bg-zinc-900/90 border border-zinc-800 rounded-3xl p-6 space-y-3 hover:border-amber-500/40 transition">
-                        <div className="h-36 bg-zinc-950 rounded-2xl border border-zinc-800 flex items-center justify-center text-cyan-400 font-black text-sm uppercase">📸 Studio & Branding</div>
-                        <h4 className="font-bold text-white text-sm uppercase">Commercial HD Photo Shoot</h4>
-                        <p className="text-xs text-gray-400">Executed professional commercial videography and product photography.</p>
-                      </div>
-                    </div>
-                  </section>
                 </div>
               )}
 
-              {}
               {/* SHOPPING PAGE */}
               {page === 'shopping' && (
                 <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
@@ -606,8 +660,7 @@
                     <p className="text-xs sm:text-sm text-gray-400">Explore our quality items, earbuds, chargers, and tech accessories</p>
                   </div>
 
-                  {/* PROMOTIONAL BANNER SLIDER ON SHOPPING PAGE */}
-                  {settings.slideshowEnabled === 'true' && activeAds.length > 0 && (
+                  {isSlideshowEnabled && activeAds.length > 0 && (
                     <div className="bg-zinc-900/80 border border-amber-500/30 rounded-3xl p-4 sm:p-6 shadow-xl flex flex-col md:flex-row items-center gap-6">
                       <div className="w-full md:w-1/3 h-48 bg-zinc-950 rounded-2xl overflow-hidden border border-zinc-800">
                         {activeAds[currentSlide]?.mediaType === 'video' ? (
@@ -657,16 +710,10 @@
 
                         return (
                           <div key={prod.id} className="bg-gradient-to-b from-zinc-900 to-zinc-950 rounded-2xl shadow-xl border border-zinc-800 overflow-hidden flex flex-col justify-between group relative">
-                            <div className="cursor-pointer" onClick={() => { setSelectedProduct(prod); setActiveDetailImage(prod.image); }}>
+                            <div className="cursor-pointer" onClick={() => openProductModal(prod)}>
                               <div className="overflow-hidden bg-zinc-950 relative">
                                 <img src={prod.image || 'https://placehold.co/400x400/18181b/f59e0b?text=No+Image'} alt={prod.name} className="w-full h-36 sm:h-44 object-cover group-hover:scale-105 transition duration-300" onError={(e)=>e.target.src='https://placehold.co/400x400/18181b/f59e0b?text=Error'} />
-                                <button 
-                                  onClick={(e) => { e.stopPropagation(); setShareProduct(prod); }}
-                                  className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/70 hover:bg-amber-500 hover:text-black text-amber-400 border border-amber-500/30 flex items-center justify-center transition shadow-lg z-10"
-                                  title="Share Product"
-                                >
-                                  <SocialIcons.Share />
-                                </button>
+                                <button onClick={(e) => { e.stopPropagation(); setShareProduct(prod); }} className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/70 hover:bg-amber-500 hover:text-black text-amber-400 border border-amber-500/30 flex items-center justify-center transition shadow-lg z-10" title="Share Product"><SocialIcons.Share/></button>
                               </div>
                               <div className="p-3 sm:p-4 space-y-1.5">
                                 <span className="text-[9px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-full font-bold inline-block">{prod.category}</span>
@@ -677,7 +724,7 @@
                             </div>
                             <div className="p-3 sm:p-4 pt-0 space-y-2">
                               <div className="flex gap-2">
-                                <button onClick={() => { setSelectedProduct(prod); setActiveDetailImage(prod.image); }} className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white text-center py-2 rounded-xl text-[10px] font-bold uppercase transition">Details</button>
+                                <button onClick={() => openProductModal(prod)} className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white text-center py-2 rounded-xl text-[10px] font-bold uppercase transition">Details</button>
                                 <a href={waLink} target="_blank" className="flex-1 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white px-2 py-2 rounded-xl text-[10px] font-black shadow-md text-center flex items-center justify-center uppercase transition">Buy</a>
                               </div>
                               {currentUser && (
@@ -692,6 +739,33 @@
                       })}
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* SERVICES PAGE */}
+              {page === 'services' && (
+                <div className="max-w-6xl mx-auto px-4 py-12 space-y-10">
+                  <div className="text-center space-y-3">
+                    <h2 className="text-2xl sm:text-3xl font-black text-white uppercase">OUR SERVICES</h2>
+                    <p className="text-xs sm:text-sm text-gray-400 max-w-xl mx-auto">Discover our professional tech expertise ranging from hardware repair to full-stack web software engineering.</p>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="bg-zinc-900 p-8 rounded-3xl border border-zinc-800 space-y-4">
+                      <div className="text-3xl">💻</div>
+                      <h3 className="font-black text-lg text-white">Web Development</h3>
+                      <p className="text-xs text-gray-400 leading-relaxed">High-performance e-commerce platforms, dynamic business web portals, and custom web apps built with modern React & Tailwind CSS.</p>
+                    </div>
+                    <div className="bg-zinc-900 p-8 rounded-3xl border border-zinc-800 space-y-4">
+                      <div className="text-3xl">📱</div>
+                      <h3 className="font-black text-lg text-white">Mobile Repair & IC Soldering</h3>
+                      <p className="text-xs text-gray-400 leading-relaxed">Precision screen replacement, battery health service, and advanced motherboard chip-level repair for all smartphone brands.</p>
+                    </div>
+                    <div className="bg-zinc-900 p-8 rounded-3xl border border-zinc-800 space-y-4">
+                      <div className="text-3xl">📸</div>
+                      <h3 className="font-black text-lg text-white">Photo Studio & Branding</h3>
+                      <p className="text-xs text-gray-400 leading-relaxed">Instant passport photography, digital videography, commercial product shoots, and professional graphic design.</p>
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -753,11 +827,11 @@
                       <div className="space-y-3">
                         <h3 className="font-black text-sm text-amber-400 uppercase">SOCIAL CHANNELS</h3>
                         <div className="flex flex-wrap gap-3">
-                          {settings.facebook && <a href={settings.facebook} target="_blank" className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow hover:scale-110 transition" title="Facebook"><SocialIcons.Facebook /></a>}
-                          {settings.instagram && <a href={settings.instagram} target="_blank" className="w-10 h-10 rounded-xl bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 text-white flex items-center justify-center shadow hover:scale-110 transition" title="Instagram"><SocialIcons.Instagram /></a>}
-                          {settings.whatsapp && <a href={`https://wa.me/${String(settings.whatsapp).replace(/\D/g, '')}`} target="_blank" className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow hover:scale-110 transition" title="WhatsApp"><SocialIcons.WhatsApp /></a>}
-                          {settings.youtube && <a href={settings.youtube} target="_blank" className="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center shadow hover:scale-110 transition" title="YouTube"><SocialIcons.YouTube /></a>}
-                          {settings.tiktok && <a href={settings.tiktok} target="_blank" className="w-10 h-10 rounded-xl bg-black border border-zinc-700 text-white flex items-center justify-center shadow hover:scale-110 transition" title="TikTok"><SocialIcons.TikTok /></a>}
+                          {settings.facebook && <a href={settings.facebook} target="_blank" className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow hover:scale-110 transition" title="Facebook"><SocialIcons.Facebook/></a>}
+                          {settings.instagram && <a href={settings.instagram} target="_blank" className="w-10 h-10 rounded-xl bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 text-white flex items-center justify-center shadow hover:scale-110 transition" title="Instagram"><SocialIcons.Instagram/></a>}
+                          {settings.whatsapp && <a href={`https://wa.me/${String(settings.whatsapp).replace(/\D/g, '')}`} target="_blank" className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow hover:scale-110 transition" title="WhatsApp"><SocialIcons.WhatsApp/></a>}
+                          {settings.youtube && <a href={settings.youtube} target="_blank" className="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center shadow hover:scale-110 transition" title="YouTube"><SocialIcons.YouTube/></a>}
+                          {settings.tiktok && <a href={settings.tiktok} target="_blank" className="w-10 h-10 rounded-xl bg-black border border-zinc-700 text-white flex items-center justify-center shadow hover:scale-110 transition" title="TikTok"><SocialIcons.TikTok/></a>}
                         </div>
                       </div>
 
@@ -779,9 +853,9 @@
                             <div><label className="block text-[10px] font-bold text-gray-400 mb-1">Admin Alert Email</label><input type="text" value={settings.email||''} onChange={e=>setSettings({...settings, email:e.target.value})} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-white" /></div>
                             
                             <div className="sm:col-span-2 p-3 bg-zinc-900 border border-amber-500/30 rounded-xl">
-                              <label className="block text-[10px] font-bold text-amber-400 mb-2 uppercase">⚡ Homepage & Shopping Slideshow Toggle</label>
+                              <label className="block text-[10px] font-bold text-amber-400 mb-2 uppercase">⚡ Homepage & Shopping Slideshow</label>
                               <select 
-                                value={settings.slideshowEnabled || 'true'} 
+                                value={String(settings.slideshowEnabled).toLowerCase()} 
                                 onChange={e => setSettings({...settings, slideshowEnabled: e.target.value})} 
                                 className="w-full p-2.5 bg-zinc-950 border border-zinc-700 rounded-lg text-white text-xs font-bold"
                               >
@@ -794,15 +868,14 @@
                             <div className="sm:col-span-2"><label className="block text-[10px] font-bold text-gray-400 mb-1">Map URL</label><input type="text" value={settings.mapLink||''} onChange={e=>setSettings({...settings, mapLink:e.target.value})} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-white" /></div>
                             
                             <div className="sm:col-span-2 pt-2 border-t border-zinc-800">
-                              <h4 className="font-bold text-amber-400 text-[10px] uppercase mb-2">FOOTER LOGO (LANDSCAPE / HD)</h4>
+                              <h4 className="font-bold text-amber-400 text-[10px] uppercase mb-2">FOOTER LOGO</h4>
                               <div className="p-3 bg-zinc-900 border border-zinc-700 rounded-lg">
-                                <input type="text" placeholder="Or paste external image URL here" value={settings.logo||''} onChange={e=>setSettings({...settings, logo:e.target.value})} className="w-full p-2 mb-2 bg-zinc-950 border border-zinc-800 rounded text-white outline-none text-[10px]" />
+                                <input type="text" placeholder="Or paste external URL" value={settings.logo||''} onChange={e=>setSettings({...settings, logo:e.target.value})} className="w-full p-2 mb-2 bg-zinc-950 border border-zinc-800 rounded text-white outline-none text-[10px]" />
                                 <div className="flex items-center gap-2">
                                   <label className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white text-center py-2 rounded cursor-pointer font-bold transition text-[10px]">
-                                    Upload HD Logo
+                                    Upload Logo
                                     <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageFileChange(e, setSettings, settings, true)} />
                                   </label>
-                                  {settings.logoFileBase64 && <span className="text-emerald-400 font-bold text-[10px]">✅ Ready</span>}
                                 </div>
                               </div>
                             </div>
@@ -842,10 +915,50 @@
                           <textarea rows="4" name="cmsg" required placeholder="How can we help you?" className="w-full p-3.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white focus:outline-none focus:border-emerald-500 transition"></textarea>
                         </div>
                         <button type="submit" className="w-full bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-500 hover:to-green-400 text-white py-4 rounded-xl font-black shadow-lg transition uppercase tracking-widest text-xs flex items-center justify-center gap-2">
-                          <SocialIcons.WhatsApp /> LAUNCH WHATSAPP
+                          <SocialIcons.WhatsApp/> LAUNCH WHATSAPP
                         </button>
                       </form>
                     </div>
+                  </div>
+                </div>
+              )}
+
+              {/* BLOG PAGE */}
+              {page === 'blog' && (
+                <div className="max-w-5xl mx-auto px-4 py-12 space-y-8">
+                  <div className="text-center space-y-2">
+                    <h2 className="text-2xl sm:text-3xl font-black text-white uppercase">TECH BLOG & GUIDES</h2>
+                    <p className="text-xs sm:text-sm text-gray-400">Latest insights on mobile repair, micro-soldering, and web software architecture.</p>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 space-y-4">
+                      <span className="text-[10px] bg-amber-500/10 text-amber-400 px-3 py-1 rounded-full font-bold">Hardware Repair</span>
+                      <h3 className="text-lg font-black text-white">How to Extend Your Smartphone Battery Lifespan</h3>
+                      <p className="text-xs text-gray-400 leading-relaxed">Discover essential battery charging habits and thermal management tips to keep your mobile battery healthy for years.</p>
+                      <span className="text-[10px] text-gray-500 font-bold block">Published: August 2026</span>
+                    </div>
+                    <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 space-y-4">
+                      <span className="text-[10px] bg-amber-500/10 text-amber-400 px-3 py-1 rounded-full font-bold">Web Dev</span>
+                      <h3 className="text-lg font-black text-white">Why Responsive Web Apps Drive E-Commerce Sales</h3>
+                      <p className="text-xs text-gray-400 leading-relaxed">Explore how lightning-fast frontend single-page architecture improves user retention and search engine rankings.</p>
+                      <span className="text-[10px] text-gray-500 font-bold block">Published: August 2026</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* GALLERY PAGE */}
+              {page === 'gallery' && (
+                <div className="max-w-6xl mx-auto px-4 py-12 space-y-8">
+                  <div className="text-center space-y-2">
+                    <h2 className="text-2xl sm:text-3xl font-black text-white uppercase">OUR WORK GALLERY</h2>
+                    <p className="text-xs sm:text-sm text-gray-400">Glimpse into our workshop, photo studio setups, and deployed projects.</p>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    <div className="h-44 bg-zinc-900 rounded-2xl border border-zinc-800 overflow-hidden group"><img src="https://placehold.co/400x400/18181b/f59e0b?text=Repair+Lab" alt="Workshop" className="w-full h-full object-cover group-hover:scale-105 transition" /></div>
+                    <div className="h-44 bg-zinc-900 rounded-2xl border border-zinc-800 overflow-hidden group"><img src="https://placehold.co/400x400/18181b/38bdf8?text=Studio+Setup" alt="Studio" className="w-full h-full object-cover group-hover:scale-105 transition" /></div>
+                    <div className="h-44 bg-zinc-900 rounded-2xl border border-zinc-800 overflow-hidden group"><img src="https://placehold.co/400x400/18181b/10b981?text=Web+Coding" alt="Coding" className="w-full h-full object-cover group-hover:scale-105 transition" /></div>
+                    <div className="h-44 bg-zinc-900 rounded-2xl border border-zinc-800 overflow-hidden group"><img src="https://placehold.co/400x400/18181b/f59e0b?text=Accessories" alt="Store" className="w-full h-full object-cover group-hover:scale-105 transition" /></div>
                   </div>
                 </div>
               )}
@@ -905,9 +1018,18 @@
                   )}
                 </div>
               )}
+
+              {/* 404 PAGE */}
+              {page === '404' && (
+                <div className="max-w-md mx-auto px-4 py-24 text-center space-y-6">
+                  <div className="text-6xl">🔍</div>
+                  <h2 className="text-3xl font-black text-amber-500 uppercase tracking-wide">404 – Page Not Found</h2>
+                  <p className="text-xs text-gray-400 leading-relaxed">The page you are trying to access does not exist or has been relocated.</p>
+                  <button onClick={() => navigateTo('home')} className="px-8 py-3.5 bg-amber-500 text-black font-black text-xs uppercase rounded-xl shadow-lg hover:bg-amber-400 transition">GO TO HOME</button>
+                </div>
+              )}
             </main>
 
-            {}
             {/* PRODUCT SHARE MODAL */}
             {shareProduct && (
               <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-50">
@@ -919,7 +1041,7 @@
                   </div>
 
                   {(() => {
-                    const shareUrl = `${window.location.origin}${window.location.pathname}#product=${shareProduct.id}`;
+                    const shareUrl = `${BASE_DOMAIN}/product/${shareProduct.id}`;
                     const encUrl = encodeURIComponent(shareUrl);
                     const encText = encodeURIComponent(`Check out ${shareProduct.name} at Solution Hub! Price: ${shareProduct.price}`);
 
@@ -936,22 +1058,12 @@
                     return (
                       <div className="space-y-4">
                         <div className="grid grid-cols-2 gap-3 text-xs font-bold">
-                          <a href={`https://www.facebook.com/sharer/sharer.php?u=${encUrl}`} target="_blank" className="p-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl flex items-center justify-center gap-2 transition">
-                            <SocialIcons.Facebook /> Facebook
-                          </a>
-                          <a href={`https://wa.me/?text=${encText}%20${encUrl}`} target="_blank" className="p-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl flex items-center justify-center gap-2 transition">
-                            <SocialIcons.WhatsApp /> WhatsApp
-                          </a>
-                          <a href={`https://t.me/share/url?url=${encUrl}&text=${encText}`} target="_blank" className="p-3 bg-sky-500 hover:bg-sky-400 text-white rounded-xl flex items-center justify-center gap-2 transition">
-                            <SocialIcons.Telegram /> Telegram
-                          </a>
-                          <a href={`https://twitter.com/intent/tweet?url=${encUrl}&text=${encText}`} target="_blank" className="p-3 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl flex items-center justify-center gap-2 transition">
-                            <SocialIcons.XTwitter /> X / Twitter
-                          </a>
+                          <a href={`https://www.facebook.com/sharer/sharer.php?u=${encUrl}`} target="_blank" className="p-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl flex items-center justify-center gap-2 transition"><SocialIcons.Facebook/> Facebook</a>
+                          <a href={`https://wa.me/?text=${encText}%20${encUrl}`} target="_blank" className="p-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl flex items-center justify-center gap-2 transition"><SocialIcons.WhatsApp/> WhatsApp</a>
+                          <a href={`https://t.me/share/url?url=${encUrl}&text=${encText}`} target="_blank" className="p-3 bg-sky-500 hover:bg-sky-400 text-white rounded-xl flex items-center justify-center gap-2 transition"><SocialIcons.Telegram/> Telegram</a>
+                          <a href={`https://twitter.com/intent/tweet?url=${encUrl}&text=${encText}`} target="_blank" className="p-3 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl flex items-center justify-center gap-2 transition"><SocialIcons.XTwitter/> X</a>
                         </div>
-                        <button onClick={copyToClipboard} className="w-full py-3 bg-amber-500 hover:bg-amber-400 text-black font-black text-xs uppercase rounded-xl transition shadow">
-                          📋 COPY DIRECT PRODUCT LINK
-                        </button>
+                        <button onClick={copyToClipboard} className="w-full py-3 bg-amber-500 hover:bg-amber-400 text-black font-black text-xs uppercase rounded-xl transition shadow">📋 COPY DIRECT LINK</button>
                       </div>
                     );
                   })()}
@@ -1076,7 +1188,7 @@
                           Select 1 Main Photo
                           <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageFileChange(e, setEditingProduct, editingProduct, false)} />
                         </label>
-                        {editingProduct.imageFileBase64 && <span className="text-emerald-400 font-bold text-[10px]">✅ Ready</span>}
+                        {editingProduct.imageFileBase64 && <span className="text-emerald-400 font-bold text-[10px]">✅</span>}
                       </div>
                     </div>
 
@@ -1087,7 +1199,7 @@
                           Upload Extra Photos (Select Multiple)
                           <input type="file" accept="image/*" multiple className="hidden" onChange={handleGalleryUpload} />
                         </label>
-                        {editingProduct.galleryFilesBase64 && <span className="text-emerald-400 font-bold text-[10px] text-center">✅ {editingProduct.galleryFilesBase64.length} Extra Photos Ready</span>}
+                        {editingProduct.galleryFilesBase64 && <span className="text-emerald-400 font-bold text-[10px] text-center">✅ {editingProduct.galleryFilesBase64.length} Photos Ready</span>}
                       </div>
                     </div>
 
@@ -1158,7 +1270,7 @@
             {selectedProduct && (
               <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-50">
                 <div className="bg-zinc-900 border border-zinc-800 rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
-                  <button onClick={() => { setSelectedProduct(null); window.location.hash = ''; }} className="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/50 backdrop-blur border border-zinc-700 flex items-center justify-center text-white hover:bg-rose-500 font-bold transition z-20">✕</button>
+                  <button onClick={() => { setSelectedProduct(null); window.history.pushState({}, '', '/shopping'); handleRouteChange('shopping'); }} className="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/50 backdrop-blur border border-zinc-700 flex items-center justify-center text-white hover:bg-rose-500 font-bold transition z-20">✕</button>
                   
                   {/* Main Active Image Display */}
                   <div className="w-full h-52 sm:h-64 rounded-2xl bg-zinc-950 border border-zinc-800 overflow-hidden relative group flex items-center justify-center">
@@ -1191,7 +1303,7 @@
                     <div className="flex justify-between items-start gap-2">
                       <h3 className="font-black text-xl text-white">{selectedProduct.name}</h3>
                       <button onClick={() => setShareProduct(selectedProduct)} className="bg-zinc-800 hover:bg-amber-500 hover:text-black text-amber-400 p-2 rounded-xl text-xs font-bold transition flex items-center gap-1 shrink-0">
-                        <SocialIcons.Share /> Share
+                        <SocialIcons.Share/> Share
                       </button>
                     </div>
                     <div className="w-12 h-1 bg-amber-500 rounded-full mt-2 mb-3"></div>
@@ -1209,7 +1321,7 @@
                       const waLink = `https://wa.me/${cleanNum}?text=${waText}`;
                       return (
                         <a href={waLink} target="_blank" className="bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-500 hover:to-green-400 text-white px-6 py-3 rounded-xl text-xs font-black shadow-[0_0_15px_rgba(16,185,129,0.3)] transition uppercase flex items-center gap-2">
-                          <SocialIcons.WhatsApp /> SHOP NOW
+                          <SocialIcons.WhatsApp/> SHOP NOW
                         </a>
                       );
                     })()}
@@ -1218,11 +1330,10 @@
               </div>
             )}
 
-            {}
             {/* Footer */}
             <footer className="bg-black text-white py-8 px-4 mt-16 border-t border-zinc-800/80 space-y-6">
               <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-                <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.location.reload()}>
+                <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigateTo('home')}>
                   {settings.logo ? (
                     <img src={settings.logo} alt="Solution Hub Logo" className="h-12 sm:h-16 w-auto max-w-[220px] object-contain drop-shadow-md" />
                   ) : (
@@ -1231,19 +1342,22 @@
                 </div>
                 
                 <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                  <button onClick={() => window.location.reload()} className="hover:text-amber-400 transition">Home</button>
-                  <button onClick={() => setPage('shopping')} className="hover:text-amber-400 transition">Shopping</button>
-                  <button onClick={() => setPage('about')} className="hover:text-amber-400 transition">About</button>
-                  <button onClick={() => setPage('contact')} className="hover:text-amber-400 transition">Contact</button>
-                  <button onClick={() => setPage('download')} className="hover:text-amber-400 transition">Downloads</button>
+                  <button onClick={() => navigateTo('home')} className="hover:text-amber-400 transition">Home</button>
+                  <button onClick={() => navigateTo('shopping')} className="hover:text-amber-400 transition">Shopping</button>
+                  <button onClick={() => navigateTo('services')} className="hover:text-amber-400 transition">Services</button>
+                  <button onClick={() => navigateTo('about')} className="hover:text-amber-400 transition">About</button>
+                  <button onClick={() => navigateTo('contact')} className="hover:text-amber-400 transition">Contact</button>
+                  <button onClick={() => navigateTo('blog')} className="hover:text-amber-400 transition">Blog</button>
+                  <button onClick={() => navigateTo('gallery')} className="hover:text-amber-400 transition">Gallery</button>
+                  <button onClick={() => navigateTo('download')} className="hover:text-amber-400 transition">Downloads</button>
                 </div>
 
                 <div className="flex gap-4 text-gray-400">
-                  {settings.facebook && <a href={settings.facebook} target="_blank" className="hover:text-blue-500 hover:scale-110 transition"><SocialIcons.Facebook /></a>}
-                  {settings.instagram && <a href={settings.instagram} target="_blank" className="hover:text-pink-500 hover:scale-110 transition"><SocialIcons.Instagram /></a>}
-                  {settings.whatsapp && <a href={`https://wa.me/${String(settings.whatsapp).replace(/\D/g, '')}`} target="_blank" className="hover:text-emerald-500 hover:scale-110 transition"><SocialIcons.WhatsApp /></a>}
-                  {settings.youtube && <a href={settings.youtube} target="_blank" className="hover:text-rose-500 hover:scale-110 transition"><SocialIcons.YouTube /></a>}
-                  {settings.tiktok && <a href={settings.tiktok} target="_blank" className="hover:text-white hover:scale-110 transition"><SocialIcons.TikTok /></a>}
+                  {settings.facebook && <a href={settings.facebook} target="_blank" className="hover:text-blue-500 hover:scale-110 transition"><SocialIcons.Facebook/></a>}
+                  {settings.instagram && <a href={settings.instagram} target="_blank" className="hover:text-pink-500 hover:scale-110 transition"><SocialIcons.Instagram/></a>}
+                  {settings.whatsapp && <a href={`https://wa.me/${String(settings.whatsapp).replace(/\D/g, '')}`} target="_blank" className="hover:text-emerald-500 hover:scale-110 transition"><SocialIcons.WhatsApp/></a>}
+                  {settings.youtube && <a href={settings.youtube} target="_blank" className="hover:text-rose-500 hover:scale-110 transition"><SocialIcons.YouTube/></a>}
+                  {settings.tiktok && <a href={settings.tiktok} target="_blank" className="hover:text-white hover:scale-110 transition"><SocialIcons.TikTok/></a>}
                 </div>
               </div>
 
@@ -1279,7 +1393,7 @@
 
       root.render(
         <ErrorBoundary>
-          <App />
+          <App/>
         </ErrorBoundary>
       );
     </script>
